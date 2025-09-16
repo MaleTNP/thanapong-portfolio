@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  </head>
+  <body>
+    <header></header>
+    <main>
+      <h1>Section 3: Hibernate/JPA CRUD</h1>
+      <h3>What is Hibernate?</h3>
+      <p>A framework for persisting / saving Java objext</p>
+      <pre>
+        .------.      .-----------.      .-----.
+        | Your | ---> |           | ---> |-----|
+        | Java |      | Hibernate |      |-----|
+        | App  | <--- |           | <--- |-----|
+        '------'      '-----------'      '-----'
+      </pre>
+      <h3>Benefits of Hibernate</h3>
+      <ul>
+        <li>Handles all of the low-level SQL</li>
+        <li>Minimize the amount of JDBC code you have to develope</li>
+        <li>Provides the Oject-to-Relaional Mapping (ORM)</li>
+      </ul>
+      <h3>Object-To-Relational Mapping (ORM)</h3>
+      <p>The developer defines mapping between Java class and database table</p>
+      <pre>
+              Java Class                                     Database Table    
+        .-------------------.                         .------------------------.
+        |     Student       |      .-----------.      | student              V |
+        |-------------------|      |           |      |------------------------|
+        | id: int           | ---> |           | ---> | id INT                 |
+        | firstName: String |      | Hibernate |      | first_name VARCHAR(45) |
+        | lastName: String  | <--- |           | <--- | last_name  VARCHAR(45) |
+        | email: String     |      |           |      | email VARCHAR(45)      |
+        '-------------------'      '-----------'      |------------------------|
+                                                      | Indexes              > |
+                                                      '------------------------'
+      </pre>
+      <h3>What is JPA</h3>
+      <p>Jakarta Persistence API (JPA) ... previously known as Java Pesistence API <br>
+        Standard API for Object-To-Relational Mapping (ORM)
+      </p>
+      <h3>What are benefites of JPA</h3>
+      <ul>
+        <li>By haveing a standard API, you are not locked to vendor's implementation</li>
+        <li>Maintain portable, flexible code by coding to JPA spec (interface)</li>
+        <li>Can theroritically switch vendor implementation</li>
+        <ul>
+          <li>For example, if Vendor ABC stops supporting their product</li>
+          <li>You could switch to Vendor XYZ without vendor lock in</li>
+        </ul>
+      </ul>
+      <code>Retrieving a Java Object with JPA</code>
+      <pre>
+        // create Java Object 
+        Student theStudent = new Student("Paul", "Doe", "paul@outlook.com");
+
+        // save it to database
+        entityManager.persit(theStudent);
+        ^^^^^^^^^^^^^ ^^^^^^
+          |             '-- The data will be stored in the database SQL insert
+          '---------------- Special JPA helper object
+      </pre>
+      <code> Retrieving a Java Object with JPA</code>
+      <pre>
+        // create Java Object 
+        Student theStudent = new Student("Paul", "Doe", "paul@outlook.com");
+
+        // save it to database
+        entityManager.persit(theStudent);
+
+        // now retrieve from database using the primary key
+        int theId = 1;
+        Student myStudent =entityManager.find(Student.class, theId);
+                                         ^^^^
+                                          '-- Query the database given id
+      </pre>
+      <h3>JPA/Hibernate CRUD Apps</h3>
+      <ul>
+        <li>Create object</li>
+        <li>Read object</li>
+        <li>Update object</li>
+        <li>Delete object</li>
+      </ul>
+      <h3>How does Hibernate / JPA relate to JDBC?</h3>
+      <p>Hibernate/JPA and JDBC <br>Hibernate/JPA uses JDBC for all database conmmunication</p>
+      <pre>
+        .------.      .-----------..------.      .-----.
+        | Your | ---> |    JPA    ||      | ---> |-----|
+        | Java |      | Hibernate || JDBC |      |-----|
+        | App  | <--- |           ||      | <--- |-----|
+        '------'      '-----------''------'      '-----'
+      </pre>
+    </main>
+    <footer></footer>
+  </body>
+</html>
