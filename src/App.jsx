@@ -1,17 +1,12 @@
+import TechStacks from './components/TechStacks.jsx';
+
 export default function App() {
   return (
     <>
       <header></header>
       <main>
-        <div></div>
-        <section className="techstack">
-          <div className="frontend">
-            <h3>FRONTEND</h3>
-          </div>
-          <div className="backend"></div>
-          <div className="database"></div>
-          <div className="tools"></div>
-        </section>
+        <section></section>
+        <TechStacks />
         <div></div>
       </main>
     </>
