@@ -1,14 +1,15 @@
-import CSSIcon from '../assets/CSS3.svg';
-import GitIcon from '../assets/Git.svg';
-import GitHubIcon from '../assets/GitHub.svg';
-import HTMLIcon from '../assets/HTML5.svg';
-import JavaIcon from '../assets/Java.svg';
-import JavaScriptIcon from '../assets/JavaScript.svg';
-import MongoDBIcon from '../assets/MongoDB.svg';
-import MySQLIcon from '../assets/MySQL.svg';
-import ReactIcon from '../assets/React.svg';
-import SpringBootIcon from '../assets/SpringBoot.svg';
-import TailwindCSS from '../assets/TailwindCSS.svg'; 
+import CSSIcon from '../assets/icons/CSS3.svg';
+import GitIcon from '../assets/icons/Git.svg';
+import GitHubIcon from '../assets/icons/GitHub.svg';
+import GoogleCloudIcon from '../assets/icons/GoogleCloud.svg';
+import HTMLIcon from '../assets/icons/HTML5.svg';
+import JavaIcon from '../assets/icons/Java.svg';
+import JavaScriptIcon from '../assets/icons/JavaScript.svg';
+import MongoDBIcon from '../assets/icons/MongoDB.svg';
+import MySQLIcon from '../assets/icons/MySQL.svg';
+import ReactIcon from '../assets/icons/React.svg';
+import SpringBootIcon from '../assets/icons/SpringBoot.svg';
+import TailwindCSS from '../assets/icons/TailwindCSS.svg'; 
 
 export const FRONTEND = [
   {
@@ -63,5 +64,9 @@ export const TOOLS = [
   {
     image: GitHubIcon,
     title: 'GitHub'
+  },
+  {
+    image: GoogleCloudIcon,
+    title: 'Google Cloud'
   },
 ]
