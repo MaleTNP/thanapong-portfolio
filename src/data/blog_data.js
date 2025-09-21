@@ -9,8 +9,7 @@ export const BLOGCARD = [
       Spring Boot REST API, Spring Data JPA, Spring Data REST, AOP and \
       Hibernate/JPA ... all connected to a MySQL database\
       ',
-      link: '',
-    // link: '../pages/springboot/index.html',
+      link: '/thanapong-portfolio/springboothome.html',
   },
   {
     image: springBootImg,

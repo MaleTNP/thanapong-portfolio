@@ -1,22 +1,15 @@
-import Home from './components/Home.jsx';
-import AboutMe from './components/AboutMe.jsx';
-import Journey from './components/Journey.jsx';
-import TechStacks from './components/TechStacks.jsx';
-import Blog from './components/Blog.jsx';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+import HomePage from './pages/Home/Home.jsx';
+// import SpringBootHome from './pages/springboot/SpringBootHome.jsx';
+// import Sec03 from './pages/springboot/pages/Sec03.jsx';
+
+const router = createBrowserRouter([
+  { path: '/thanapong-portfolio', element: <HomePage />,},
+  // { path: '/thanapong-portfolio/springboot', element: <SpringBootHome />},
+  // { path: '/thanapong-portfolio/springboot/Sec03', element: <Sec03 />},
+]);
 
 export default function App() {
-  return (
-    <>
-      <header></header>
-      <main>
-        <Home />
-        <AboutMe />
-        <Journey />
-        <TechStacks />
-        <Blog />
-        <div>Get in touch</div>
-      </main>
-      <footer></footer>
-    </>
-  )
+  return <RouterProvider router={router}/>
 }
