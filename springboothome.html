@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./index.css">
+    <title>Male's Spring Boot notes</title>
+  </head>
+  <body>
+    <main>
+      <div class="header">
+        <nav class="side-nav">
+          <div>
+            <img>
+            <div>My Note</div>
+          </div>
+          <ul class="nav-links">
+            <li><a href="#"><p>Spring Boot 3 Quick Start</p></a></li>
+            <li><a href="#"><p>Spring Core</p></a></li>
+            <li><a href="/thanapong-portfolio/springboot/section03.html"><p>Hibernate/JPA CRUD</p></a></li>
+            <li><a href="#"><p>REST CRUD APIs</p></a></li>
+            <li><a href="#"><p>REST API Security</p></a></li>
+            <li><a href="#"><p>Spring MVC</p></a></li>
+            <li><a href="#"><p>Spring MVC CRUD</p></a></li>
+            <li><a href="#"><p>Spring MVC Security</p></a></li>
+            <li><a href="#"><p>JPA Advanced Mapping</p></a></li>
+            <li><a href="#"><p>AOP</p></a></li>
+            <div class="active"></div>
+          </ul>
+        </nav>
+        <div class="main">
+          <h1>Welcome to Male's Spring Boot Note! </h1>
+          <h2>I created this blog to review and share everything I've learned from 
+            Chad Darby's Spring Boot course on Udemy.
+          </h2>
+          <h3>What Is Spring Boot?</h3>
+          <p>
+            pring Boot is the modern development approach for building enterprise 
+            application. Spring Boot minimizes the configuration required for 
+            setting up Spring projects. By using Spring Boot, you can accelerate 
+            your development speed and leverage the auto-configuration features.
+          </p>
+          <h3>Spring Boot Application Flow Architecture</h3>
+          <pre>
+                .----------------------------.
+		| Repository Class Extending |
+		|        CRUD Services       |
+		'----------------------------'
+				|
+				'---------------.Dependency injection
+						|
+.--------.   HTTPS   .------------.       .---------------.       .-------.
+| Client | <-------> | Controller | <---> | Service Layer | <---> | Model |
+'--------'  request  '------------'       '---------------'       '-------'
+						|		    |
+						|   .----------.    |JPA/Spring Data 
+						'---| Database |----'
+						    '----------'
+          </pre>
+          <h3>What is Spring?</h3>
+          <p>
+            Spring is an enterprise Java framework. It was designed to simplify 
+            Jakarta EE development and make developers more productive. Spring 
+            makes use of Inversion of Control and Dependency Injection to promote 
+            good software coding practices and speed up development time.
+          </p>
+          <h3>Spring Boot Solution</h3>
+          <ul>
+            <li>Make it easier to get started with Spring development</li>
+            <li>
+              Minimize the amount of manual configuration.
+              Perform auto-configuration based on props files and JAR classpath
+            </li>
+            <li>Help to resolve dependency conficts (Maven or Grandle)</li>
+            <li>Provide an embedded HTTP server so you cen get started quickly</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
