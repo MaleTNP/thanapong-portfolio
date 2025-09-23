@@ -1,0 +1,826 @@
+Section 1: 
+
+Spring Initializr
+Spring Boot provide Spring Initializr.
+ - Quickly create a starter Spring Boot project
+ - Select your dependencies
+ - Create a Maven/Grandle project
+ - Import the project into your IDE
+
+http://start.spring.io
+
+Spring Boot Embedded Server
+ - Provide an embedded HTTP server so you can get started quickly
+   > Tomcat, Jetty, Udertow, ...
+ - No need to install a server separately
+
+ mycoolapp.jar
+.------------.   .--------------------------------.
+| .--------. |   |          JAR file              |
+| | mycode | |   | includes your application code |
+| '--------' |  <              AND                |
+| .--------. |   |    includes the server         |
+| | Tomcat | |   '--------------------------------'
+| '--------' |
+'------------'
+
+Running Spring Boot Apps
+ - Spring Boot apps can be run standalone (includes embedded server)
+ - Run the Spring Boot app from the IDE or command-line
+
+ mycoolapp.jar
+.------------.
+| .--------. |   .---------------------------.
+| | mycode | |  <  > java -jar mycoolapp.jar |
+| '--------' |   '---------------------------'
+| .--------. |
+| | Tomcat | |
+| '--------' |
+'------------'
+
+Deploying Spring Boot Apps
+ - Spring Boot apps can also be deployed in the traditional way
+ - Deploy WAR file to an external server: Tomcat, JBoss, WebSphere etc...
+Note: WAR (Web Application Archive)
+
+Tomcat
+.------------------------------------------------.
+|   mycoolapp.war   travel.war     shopping.war  |
+|  .------------.  .-----------.  .-----------.  |
+|  | .--------. |  |           |  |           |  |
+|  | | mycode | |  |           |  |           |  |
+|  | '--------' |  |           |  |           |  |
+|  '------------'  '-----------'  '-----------'  |
+'------------------------------------------------'
+
+Quick Word on Maven
+ - When building your Java project, you may need additional JAR files
+   For Example: Spring, Hibernate, Commons Logging, JSON etc...
+ - One approach is to download the JAR files from each project web site
+ - Manually add the JAR files to your build path / classpath
+
+Maven Solution
+ - Tell Maven the projects you are working with (dependencies)
+   Spring, Hibernate etc...
+ - Maven will go out and download the JAR files for those projects for you
+ - And Maven will make those JAR files available during complie/run
+ - Think of Maven as your friendly helper / personal shopper
+
+******
+1st Project
+
+Development Process
+1. Configure our project at Spring Initializr website
+   - Project > select Maven
+   - Language > select Java
+   - Spring Boot > select latest version (avoid alpha and beta version)
+   - Dependencies > select Spring Web
+2. Download the zip file
+3. Unzip the file
+4. Import the project into our IDE
+
+
+Create new package named rest in mycoolapp (...mycoolapp.rest)
+Create new FunRestController.java
+
+Create REST Controller
+
+  .---------------> Set up rest controller
+  |
+@RestController
+public class FunRestController {
+
+  // expose "/" that returns "Hello World"
+
+   .----> Handle HTTP GET requests
+   | 
+  @GetMapping
+  public String sayHello() {
+    return "Hello World";
+  }
+
+}
+
+**********
+
+What Are Spring "Projects"
+ - Additional Spring modules built-on top of the core Spring Framework
+ - Only use what you need ... 
+   > Spring Cloud, Spring Data
+   > Spring Batch, Spring Security
+   > Spring Web Services, Spring LDAP
+   > others ...
+
+You can get more information by going to Spring's website, www.spring.io
+Go to Projects > Overview
+
+Spring Boot and Maven
+ - When you generate projects using Spring Initializr
+   It cann generate a Maven project for you
+ - In this section, we will learn the basics of Maven
+   Viewing dependencies in the Maven pom.xml file
+   Spring Boot Starters for Maven
+
+<< WHAT IS MAVEN? >>
+
+What is Maven?
+ - Maven is a Project Managemetn tool
+ - Most popular use of Maven is for build management and dependencies
+
+What Problems Does Maven Solve?
+ - When building you Java project, you may need additional JAR files
+   For example: Spring, Hibernate, Commons Logging, JSON etc...
+ - One approach is to download the JAR files from each project web site
+ - Manually add the JAR files to your build path / classpath
+
+Maven - How It Works
+
+Project Config file
+.-----------------.
+| Spring          |
+| Hibernate       |                        Maven Local Repository
+| Commons Logging |   1   .-------.   2   .----------------------.
+| JSON            | <---> | Maven | <---> |    (your computer)   |
+| ...             |   5   '-------'   4   '----------------------'
+| .-----------.   |           ^
+| | Developer |   |           | 3   .------------------------------------.
+| '-----------'   |           '---> | Maven Central Repository (remoter) |
+'-----------------'                 '------------------------------------'
+
+1. Read Config file
+2. Check local repo
+3. Get from remote repo
+4. Save in local repo
+5. Build and Run
+
+
+Handling JAR Dependencies 
+ - When Maven retrieves a project dependency
+   > It will also download supporting dependencies
+   > For example: Spring depends on commons-logging...
+ - Maven will handle this for us automatically
+
+Building and Running
+ - When you build and run your app...
+ - Maven will handle class / build path for you
+ - Based on config file, Maven will add JAR files accordingly
+
+Standard Directory Structure
+ - Normally when you join a new project
+   > Each development team dreams up their own directory structure
+   > Not ideal for new commers and not standardized
+ - Maven solves this problem by providing a standard directory structure
+
+Standard Directory Structure
+my-super-cool-app
+ '-- pom.xml
+ '-- src
+ '   '-- main
+ '   '   '-- java
+ '   '   '-- resources
+ '   '   '-- wepapp
+ '   '-- test
+ '       '-- java
+ '       '-- resources
+ '-- target
+
+.--------------------.-------------------------------------------------------------------------.
+|     Directory      |                             Description                                 |
+|--------------------+-------------------------------------------------------------------------|
+| src/main/java      | Your Java source code                                                   |
+| src/main/resources | Properties / config files used by your app                              |
+| src/main/webapp    | JSP files and web config files, other web assets (images, css, js, etc) |
+| src/test           | Unit testing code and properties                                        |
+| target             | Desination directory for complied code, Automatically created by Maven  |
+'--------------------'-------------------------------------------------------------------------'
+
+Standard Directory Structure Benefits
+ - Most major IDEs have built-in support for Maven
+   > Eclipse, IntelliJ, NetBeans etc
+   > IDEs can easily read/import Maven projects
+ - Maven projects are portable
+   > Developers can sasily share projects between IDEs
+   > No need to fight about which IDE is the best
+
+Advantages of Maven
+ - Dependency Management
+   > Maven will find JAR files for you
+   > No missing JARs
+ - Building and Running your Project
+   > No more build path / classpath issues
+ - Standard directory structure
+
+<<MAVEN KEY CONCEPTS>>
+
+Maven Key Concepts
+ - POM File - pom.xml
+ - Project Coordinates
+
+POM File - pom.xml
+ - Project Object Model file: POM file
+ - Configuration file for your project
+   > Basically your "shopping list" for Maven
+ - Located in the root of your Maven project
+
+POM File Structure 
+1. project meta data
+Project name, version etc
+Output file type: JAR, WAR, ...
+
+2. dependencies
+List of projects we depend on
+Spring, Hibernate, etc...
+
+3. plug ins
+Additional custom tasks to run:
+ generate JUnit test reports etc...
+
+Simple POM File
+<project ...>
+<modelVersion>4.0.0</modelVersion>
+
+<groupId>com.maleThanpong</groupId>
+<artifact>mycoolapp</artifact>
+<version>1.0.FINAL</version>
+<packaging>jar</packaging>
+
+<name>mycoolapp</name>
+
+<dependencies>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifact>junit-jupiter</artifact>
+    <version>5.9.1</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+
+  <!-- add plugins for customization -->
+
+</project>
+
+Project Coordinates
+ - Project Coordinates uniquely identify a project
+   > Similar to GPS coordinates for your house: latitude / longitude
+   > Precise information for finding your house (city, street, house #)
+
+<groupId>com.maleThanpong</groupId>
+<artifact>mycoolapp</artifact>
+<version>1.0.FINAL</version>
+
+Project Coordinates - Elements
+
+.-------------.-----------------------------------------------------------.
+|    Name     |                      Description                          |
+|-------------+-----------------------------------------------------------|
+| Group ID    | Name of company, group, or organization.                  |
+|             | Convention is to use reverse domain name: com.nintendo    |
+|-------------+-----------------------------------------------------------|
+| Artifact Id | Name for this project: mycoolapp                          |
+|             |                                                           |
+|-------------+-----------------------------------------------------------|
+| Version     | A specific relese version like: 1.0, 1.6, 2.0 ...         |
+|             | If project is under active development then: 1.0-SNAPSHOT |
+'-------------'-----------------------------------------------------------'
+
+Dependency Coordinates
+ - To add given dependency project, we need
+   > Group ID, Artifact ID
+   > Version is optional ...
+     > Best practice is to include the version (repeatable builds)
+
+How to Find Dependency Coordinates
+ - Option 1: Visit the project page (spring.io, hibernate.org etc)
+ - Option 2: Visit https://central.sonatype.com (easiest approach)
+
+<< EXPLORING SPRING BOOT PROJECT FILES >>
+
+Maven Standard Directory Structure
+mycoolapp
+ '-- mvnw
+ '-- mvnw.cmd
+ '-- pom.xml
+ '-- src
+     '-- main
+     '   '-- java
+     '   '-- resource
+     '-- test
+         '-- java
+
+Maven Wrapper files
+ - mvnw allow you to run a Maven project
+   > No need to have Maven installed or present on your path
+   > If correct version of Maven is NOT found on your computer
+     > Automatically downloads correct version and runs Maven
+ - two files are provided
+   > mvnw.cmd for MS Windows ( > mvnw clean compile test)
+   > mvnw.sh for Linux/Mac ( $ ./mvnw clean complie test)
+ - If you already have Maven installed previously
+   > Then you can ignore/delete the mvnw files
+ - Just use Maven as you normally would ($ mvn clean complie test)
+
+Maven POM file
+
+Spring Boot Maven plugin
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+    </plugin>
+  </pllugins>
+</build>
+
+To package executable jar or war archive.
+Can also easily run the app
+
+./mvnw package
+./mvnw spring-boot:run
+
+Application Properties
+ - By default, Spring Boot will load properties from: application.properties
+
+src
+ '-- main
+     '-- java
+     '-- resource
+         '-- application.properties
+         '   ^^^^^^^^^^^^^^^^^^^^^^
+         '    '----> Created by Spring Initializr, Empty at the beginning
+         '
+         '-- static
+         '-- templates
+
+Static Content
+By default, Spring Boot will load static resources from "/static" directory
+Examples of static resources
+HTML files, CSS, JavaScript, images, etc...
+
+Templates
+By default, Spring Boot will load templates from "/templates" directory
+ - Spring Boot includs auto-configuration for following template engines
+   > FreeMarker, Thymeleaf, Mustache
+
+
+** WARNING: **
+Do not use the src/main/webapp directory if your application is packaged as a JAR.
+Although this is a standard Maven directory, it works only with WAR packaging.
+It is silently ignored by most build tools if you generate a JAR.
+
+Read data from: application.properties
+
+application.properties
+------------------------
+# configure server port
+server.port=8484
+
+# configure my props
+coach.nam=Mickey Mouse
+team.name=The Mouse Crew
+-------------------------
+
+-------------------------
+@RestController
+public class FunRestController {
+  
+  @Value("${coach.name}")
+  private String coachName;
+
+  @Value("${team.name}")
+  private String teamName;
+
+  ...
+
+}
+-------------------------
+
+We can inject it by using coach.name and then injecting it or assigning it ot this given field.
+
+
+
+<< SPRING BOOT STARTERS >>
+The Solution - Spring Boot Starters
+ - Spring Boot Starters
+ - A curated list of Maven dependencies
+ - A collection of dependencies grouped together
+ - Tested and verified by the Spring Development team
+ - Makes it mush easier for the developer to get started with Spring
+ - Reduces the amount of Maven configuration
+
+Solution: Spring Boot Starter - Web
+Spring Boot provides: spring-boot-starter-web
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+Spring Boot Starters
+A collection of Maven dependencies (Compatible versions)
+
+CONTAINS
+spring-web
+spring-webmvc
+hibernate-validator
+json
+tomcat
+...
+
+Save's the develooper from having to list all of the indicidual dependencies.
+Also, makes sure you have compatible versions.
+
+Full list of Spring Boot Starters
+www.luv2code.com/spring-boot-starteres
+
+<< SPRING BOOT STARTER PARENT >>
+
+Spring Boot Starter Parent
+ - Spring Boot provides a "Starter Parent"
+ - This is a special starter that provides Maven degaults
+
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>3.0.0-RC1</version>
+  <reltivePath>
+</parent>
+
+Included in pom.xml when using Spring Initializr.
+
+ - Maven defaults defined in the Starter Parent
+   > Default complier level
+   > UTF-8 source enconding
+   > Other ...
+
+ - To override a default, set as a property
+
+<properties>
+  <java.version>17</java.version>
+</properties>
+
+Benefits of the Spring Boot Starter Parent
+ - Default Maven configuration: Java version, UTF-encoding etc
+ - Dependency management
+   > Use version on parent only
+   > spring-boot-starter-* dependencies inherit version from parent
+ - Default configuration of Spring Boot plugin
+
+<< SPRING BOOT DEV TOOLS >>
+
+The Problem
+ - When running Spring Boot applications
+   > If you make changes to your source code
+   > Then you have to manually restart your application
+
+Solution: Spring Boot Dev Tools
+ - spring-boot-devtools to the rescue!
+ - Automatically restarts your application when code is updated
+ - Simply add the dependency to your POM file
+ - No need to write additinoal code
+ - For IntelliJ, need to set additional configurations
+
+ - Adding the dependency to your POM file
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifact>spring-boot-devtools</artifact>
+</dependency>
+
+IntelliJ Community Edition - DevTools
+ - IntelliJ Community Edition does not support DevTools by default
+ - Select: Preferrences > Build, Execution, Deployment > Complier
+   - Check box: Build project automatically
+ - Select: Preferences > Advanced Settings
+   - Check box: Allow auto-make to ...
+
+<< SPRING BOOT ACTUATOR >>
+
+Problem
+ - How can I monitor and manage my application
+ - How can I check the application health?
+ - How can I access application metrics?
+
+Solution: Spring Boot Actuator
+ - Expose endpoints to monitor and manage your application
+ - You easily get DevOps functionality out-of-the-box
+ - Simply add the dependency to your POM file
+ - REST endpoints are automatically added to your application
+Note: No need to write additional code! You get new REST endpoints for FREE!
+
+- Addtin th dependency to your POM file
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifact>spring-boot-starter-actuator</artifact>
+</dependency>
+
+ - Endponits are prefixed with: /actuator
+
+Spring Boot Actuator Endpoints
+ - There are 10+ Spring Boot Actuator endpoints
+.--------------.----------------------------------------------------------------.
+|     Name     |               Description                                      |
+|--------------+----------------------------------------------------------------|
+| /health      | Health information about your application                      |
+|--------------+----------------------------------------------------------------|
+| /auditevents | Audit events for your application                              |
+|--------------+----------------------------------------------------------------|
+| /beans       | List of all beans registered in the Spring application context |
+|--------------+----------------------------------------------------------------|
+| /mappings    | List of all @RequestMapping paths                              |
+|--------------+----------------------------------------------------------------|
+|     ...      |                                                                |
+'--------------'----------------------------------------------------------------'
+
+Full list
+www.luv2code.com/actuator-endpoints
+
+Health Endpoint
+ - /health checks the status of your application
+ - Normally used by monitoring apps to see if your app is up or down
+
+
+url: localhost:8080/actualtor/health
+output:
+{"status":"UP"}
+^^^^^^^^^^^^^^^
+ '--> Health status is customizable based on your own business logic
+
+Exposing Endpoints
+ - By default, only /health is exposed
+ - The /info endpoint can provide information about your application
+ - To expose /info
+
+File: src/main/resources/application.properties
+------------------------------------------------
+management.endpoints.web.exposuure.includ=health,info
+management.info.env.enabled=true
+-----------------------------------------------
+
+Info Endpoint
+ - /info gives information about your application
+ - Default is empty
+ - Update application.properties with your app info
+
+File: src/main/resources/application.properties
+------------------------------------------------
+info.app.name=My Super Cool App
+info.app.description=A crazy and fun app
+info.app.version=1.0.0
+^^^^
+ '---> Properties starting with "info." will be used by /info
+-----------------------------------------------
+
+output:
+{
+  "app": {
+    "name": "My Super Cool App",
+    "decription": "A crazy and fun app",
+    "version": "1.0.0"
+}
+
+Exposing Endpoints
+ - By default, only /health is exposed
+ - To expose all actuator endpoints over HTTP
+
+File: src/main/resources/application.properties
+------------------------------------------------
+# Use wildcard "*" to expose all endpoints
+# Can also expose individual endpoints with a comma-delimited list
+#
+managment.endpoints.web.exposure.include=*
+-----------------------------------------------
+
+What about security?
+We will cover this in the later section.
+
+Development Process
+1. Edit pom.xml and add spring-boot-starter-acuator
+2. View actuatore endpoints for: /health
+3. Edit application.properties to customize /info
+
+
+<< SPRING BOOT ACTUATOR - SECURING ENDPOINTS >>
+What about Security?
+ - You may NOT want to expose all of this information
+ - Add Spring Security to project and endpoints are secured
+
+File:/pom.xml
+------------------------------------------------
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifact>spring-boot-starter-security</artifact>
+</dependency>
+-----------------------------------------------
+
+Secured Endpoints
+ - Now when you access: /actuator/beans
+ - Spring Security will prompt for login
+
+.-------------------.
+| Please sign in    |
+| .---------------. |
+| | Username      | |
+| '---------------' |
+| .---------------. |
+| | Password      | |
+| '---------------' |
+|                   |
+| .---------------. |
+| |    Sign in    | |
+| '---------------' |
+'-------------------'
+
+Default user name: user
+Check console logs for password
+
+console:
+Using generated security password: 78fd68a-c190-421d-...
+
+Spring Security configuration
+ - You can override the default user name and generated password
+
+File: src/main/resources/application.properties
+-----------------------------------------------
+spring.security.user.name=scott
+spring.security.user.password=tiger
+-----------------------------------------------
+
+Csutomizing Spring Security
+ - You can customize Spring Security for Spring Boot Actuator
+   - Use a database for roles, encrypted passwords etc ...
+ - We will cover details of Spring Security later
+
+Excluding Endpoints
+ - To exclude /health and /info
+
+File: src/main/resources/application.properties
+-----------------------------------------------
+# Exclude individual endpoints with a comma-delimited list
+#
+management.endpoints.web.exposure.exclude=health,info
+                                  ^^^^^^^
+-----------------------------------------------
+
+
+<< RUN SPRING BOOT APPS FROM THE COMMANND LINE >>
+Running from the Command-Line
+ - During development we spend most of our time in the IDE
+ - However, we may want to run our Spring Boot app outside of the IDE
+ - One approach is running from the command-line
+
+ - When running form the command-line
+   - No need to have IDE open/running
+
+ - Since we using Spring Boot, the server is embedded in our JAR file
+   - No need to have separate server installed/running
+
+ - Spring Boot apps are self-contained
+
+Two options for running the app
+ - Option 1: Use java -jar
+ - Option 2: Use Spring Boot Maven plugin
+   - mvnw spring-boot:run
+
+Option 1: Use java -jar
+
+ mycoolapp.jar
+.------------.   .---> Self-contained unit, Nothing else to install
+| .--------. |   |
+| | mycode | | .---------------------------.
+| '--------' | | > java -jar mycoolapp.jar |
+| .--------. | '-------------^^^^^^^^^-----'
+| | Tomcat | |   '            '---> Name of our JAR file
+| '--------' |   '---> Start our app
+'------------'   '---> Also start embedded server (Tomcat)
+
+Option 2: Use Spring Boot Maven plugin
+ - mvnw allows you to run a Maven project
+   - No need to have Maven installed or present on your path
+   - If correct version of Maven is NOT found on your computer
+     - Automatically downloads correct version and runs Maven
+
+Maven Wrapper files
+ - If you already have Maven installed previosly
+   - Then you can ignore/delete the mvnw files
+ - Just use Maven as you normally would
+
+File: /pom.xml
+-----------------------------------------------
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+    </plugin>
+  </pllugins>
+</build>
+-----------------------------------------------
+
+Terminal
+-----------------------------------------------
+ > ./mvnw package
+     ^^^^^^^^^^^^
+      '--> will create the JAR file for our application
+           JAR is created in the "target" sub-directory
+
+ > cd target
+ > java -jar mycoolapp-0.0.1-SNAPSHOT.jar
+-----------------------------------------------
+
+
+<< INJECTING CUSTOM APPLICATION PROPERTIES >>
+Problem
+ - You need for your app to be configurable ... no hard-coding of values
+ - You need to read app configuration from a properties file
+
+Solution: Application Properties file
+ - By default, Spring Boot reads information from a standard properties file
+   - Located at: src/main/resources/application.properties
+ - You can define ANY custom properties in this file
+ - Your Spring Boot app can access properties using @Value
+
+Development Process
+1. Define custom properties in application.properties
+
+File: src/main/resources/application.properties
+-----------------------------------------------
+#
+# Define custom properties
+#
+coach.name=Mickey Mouse
+team.name=The Mouse Club
+-----------------------------------------------
+
+2. Inject properties into Spring Boot application using @Value
+
+File: .../FunRestController.java
+-----------------------------------------------
+@RestController
+public class FunRestController {
+  
+  @Value("${coach.name}")
+  private String coachName;
+
+  @Value("${team.name}")
+  private String teamName;
+
+  @GetMapping("/teaminfo")
+  public String getTeamInfo() {
+    return "Coach: " + coachName + ", Team name: " + teamName;
+  }
+
+  ...
+
+}
+-----------------------------------------------
+
+url: localhost:8080/teaminfo
+----------------------------
+Coach: Mickey Mouse, Team name: The Mouse Club
+
+
+<< CONFIGURING THE SPRING BOOT SERVER >>
+Spring Boot Properties
+ - Spring Boot can be configured in the application.propertie file
+ - Server port, context path, actuator, security etc ...
+ - Spring Boot has 1,000+ properties
+
+List of Common Properties
+www.luv2code.com/spring-boot-props
+
+ - Don't let the 1,000+ properties overwhelm you
+ - The properties are roughly grouped into the following categories
+
+.----------. .-------------. .----------. .---------.
+|   Core   | |     Web     | | Security | |  Data   |
+'----------' '-------------' '----------' '---------'
+.----------. .-------------. .----------. .---------.
+| Actuator | | Integration | | DevTools | | Testing |
+'----------' '-------------' '----------' '---------'
+
+Development Process
+1. Configure the server port
+
+File: src/main/resources/application.properties
+-----------------------------------------------
+#
+# Change Spring Boot Embedded server port
+#
+server.port=7070
+-----------------------------------------------
+
+2. Configure the application context path
+
+File: src/main/resources/application.properties
+-----------------------------------------------
+#
+# Set the context path of the application
+# All request should be prefiexed with /mycoolapp
+#
+server.servlet.context-path=/mycoolapp
+-----------------------------------------------
+
+
+
+
+
