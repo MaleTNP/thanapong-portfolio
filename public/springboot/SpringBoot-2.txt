@@ -1,0 +1,534 @@
+SECTION 2: Spring Core
+
+<< What is Inversion of Control? >>
+
+Inversion of Control (IoC)
+The approach of outsourcing the construction and management of objects.
+
+Coding Scenario
+
+             getDailyWorkout()
+.--------. --------------------> .--------------.
+| My App |                       | CricketCoach |
+'--------' <-------------------- '--------------'
+
+ - App should be configurable
+ - Easily change the coach for another sport
+   - Baseball, Hocker, Tennis, ...
+
+Ideal Solution
+
+                              Spring Container
+.--------.    give me a      .----------------.
+| My App | ----------------> | Object Factory |
+'--------'  "Coach" object   '----------------'
+      ^                       |   |               .---------------.
+      '-----------------------'   |           .---| CricketCoach  |
+                                  |           |   '---------------'
+                           .---------------.  |   .---------------.
+                           | Configuration |--|---| HockeyCoach   |
+                           '---------------'  |   '---------------'
+                                              |   .---------------.
+                                              '---| BaseballCoach |
+                                                  '---------------'
+We have our application
+We can talk to an object factory and say,
+give me a coach object,
+This object factory, based on a configuration,
+it'll create a coach for us and give us a reference to it.
+So it could create a CricketCoach, a HockerCoach or BaseballCoach.
+This is all based on a configuration.
+
+Spring container basically works as an Object Factory.
+So, it will tell Spring, give me a given coach object in the background.
+Spring will determine which coach object that you need based on a configuration,
+and then give you a reference to that given coach object.
+
+Spring Container
+ - Primary function
+   - Create and mange objects (Inversion of Control)
+   - Inject object dependencies (Dependency Injection)
+
+How to configuring Spring Container
+ - XML configuration (legacy)
+ - Java Annotations (modern)
+ - Java Source Code (modern)
+We will focus on modern solution
+
+
+<< DEFINING DEPENDENCY INJECTION >>
+
+The dependency inversion principle.
+The client delegates to another object the responsibility of providing its dependencies.
+
+Demo Example
+ - Coach will provide daily workouts
+ - The DemoController wants to use a Coach
+   - New helper: Coach
+   - This is a dependency
+ - Need to inject this dependency
+
+.----------------.
+| DemoController |----.
+'----------------'    |
+                 .---------.
+                 |  Coach  |
+                 '---------'
+
+Injection Types
+ - There are multiple types of injection with Spring
+ - We will cover the two recommended types of injection
+   - Constructor Injection
+   - Setter Injection
+
+Injection Types - Which one to use?
+ - Constructor Injection
+   - Use this when you have required dependencies
+   - Generally recommended by the spring.io development team as first choice
+
+ - Setter Injection
+   - Use this when you have optional dependencies
+   - If dependency is not provided, your app can provide reasonable default logic
+
+What is Spring AutoWiring
+ - For dependency injection, Spring can use autowiring
+ - Spring will look for a class that matches
+   - matches by type: class or interface
+ - Spirng will inject it automatically ... hence it is autowired
+
+Autowiring Example
+ - Injecting a Coach implementation
+ - Spring will scan for @Component
+ - Any one implements the Coach interface???
+ - If so, let's inject them. For example: CricketCoach
+
+Example Application
+
+                /dailyworkout                       /dailyworkout()
+.-------------. ---------------> .----------------. -----------------> .---------.
+| Web Browser | <--------------- | DemoController | <----------------- |  Coach  |
+'-------------'  "Practice fast  '----------------'  "Practice fast    '---------'
+                bowling for 15 minutes"            bowling for 15 minutes"
+
+Development Process
+1. Define the dependency interface and class
+
+File: Coach.java
+--------------------------------------
+package com.thanapong.springcoredemo;
+
+public interface Coach {
+  String getDailyWorkout();
+}
+--------------------------------------
+
+File: CricketCoach.java
+--------------------------------------
+package com.thanapong.springcoredemo;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class CricketCoach implements Coach {
+
+  @Override
+  public String getDailyWorkout() {
+    return "Practice fast bowling for 15 minutes";
+  }
+}
+--------------------------------------
+
+@Component annotation marks the class as a Spring Bean
+ - @Component marks the class as a Spring Bean
+   - A Spring Bean is just a regular Java class that is managed by Spring
+ - @Component also makes the bean available for dependency injection
+
+
+2. Create Demo REST Controller
+
+File: DemoController.java
+--------------------------------------
+package com.thanapong.springcoredemo;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+
+}
+--------------------------------------
+
+
+3. Create a constructor in your class for injections
+
+File: DemoController.java
+--------------------------------------
+package com.thanapong.springcoredemo;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+
+  private Coach myCoach;
+
+  @Autowired
+  public DemoController(Coach theCoach) {
+    myCoach = theCoach;
+  }
+}
+--------------------------------------
+
+@Autowired annotation tells Spring to inject a dependency
+If you only have one constructor then @Autowired on constructor is optional
+
+
+                              Spring Container
+.--------.    give me a      .----------------.
+| My App | ----------------> | Object Factory |
+'--------'  "Coach" object   '----------------'
+      ^                       |   |               .---------------.
+      '-----------------------'   |           .---| CricketCoach  |
+                                  |           |   '---------------'
+                           .---------------.  |   .---------------.
+                           | Configuration |--|---| HockeyCoach   |
+                           '---------------'  |   '---------------'
+                                              |   .---------------.
+                                              '---| BaseballCoach |
+                                                  '---------------'
+
+
+4. Add @GetMapping for /dailyworkout
+
+File: DemoController.java
+--------------------------------------
+package com.thanapong.springcoredemo;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+
+  private Coach myCoach;
+
+  @Autowired
+  public DemoController(Coach theCoach) {
+    myCoach = theCoach;
+  }
+
+  GetMapping("/dailyworkout")
+  public String getDailyWorkout() {
+    return myCoach.getDailyWorkout();
+  }
+}
+--------------------------------------
+
+                /dailyworkout                       /dailyworkout()
+.-------------. ---------------> .----------------. -----------------> .---------.
+| Web Browser | <--------------- | DemoController | <----------------- |  Coach  |
+'-------------'  "Practice fast  '----------------'  "Practice fast    '---------'
+                bowling for 15 minutes"            bowling for 15 minutes"
+
+
+<< CONSTRUCTOR INJECTION - BEHIND THE SCENES >>
+
+How Spring Processes your application
+
+.------------. .-------------------. .---------------------.
+| Coach.java | | CricketCoach.java | | DemoController.java |
+'------------' '-------------------' '---------------------'
+
+Behind the scenes, Spring will create a new instance of your coach.
+It'll also perform constructor injection with your DemoController
+It'll actually inject the coach into the demo controller.
+
+The whole idea of injection is that there's a dependency or a helper.
+So in this case, the coach is a dependency or a helper for the actual controller.
+
+The "new" keyword ... is that it???
+ - You may wonder ...
+   - Is it just the "new" keyword???
+   - I don't need Spring for this ... I can do this by myself LOL!!!
+ - Spring is more than just Inversion of Control and Dependency Injection
+ - For small basic apps, it may be hard to see the benefits of Spring
+
+Spring for Enterprise applications
+ - Spring is targeted for enterprise, real-time / real-world applications
+ - Spring provides features such as
+   - Database access and Transactions
+   - REST APIs and Web MVC
+   - Security
+   - etc ...
+
+
+<< COMPONENT SCANNING >>
+Scanning for Component Classes
+ - Spring will scan your Java classes for special annotations
+   - @Component, etc ...
+ - Automatically register the beans in the Spring container
+
+Java Source Code
+
+File: SpringcoredemoApplication.java
+-------------------------------------
+...
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+^^^^^^^^^^^^^^^^^^^^^^
+ '--> Enables
+      Auto configuration
+      Component scanning
+      Additional configuration
+
+public class SpringcoredemoApplication {
+
+
+  public static void main(String[] args) {
+    SpringApplication.run.SpringcoredemoApplication, args);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  }    |
+}      |
+       |
+-------|-----------------------------
+       '--> Bootstrap your Spring Boot application
+            Behind the scense ...
+            Creates application context and registers all beans
+            Starts the embedded server tomcat etc...
+  
+More on Component Scanning
+ - By default, Spring Boot starts component scanning
+   - From same package as your main Spring Boot application
+   - Also scans sub-packages recursively
+ - This implicitly defines a base search package
+   - Allows you to leverage default component scanning
+   - No need to explicityly reference the base package name
+
+ - Default scanning is fine if everything is under
+   - com.thanapong.springcoredemo
+
+ - But what about my other packages?
+
+File: SpringcoredemoApplication.java
+-------------------------------------
+package com.thanapong.springcoredemo;
+...
+@SpringBootApplication(
+	scanBasePackages={"com.thanapong.springcoredemo",
+       			  "com.thanapong.util",
+			  "org.acme.car",
+			  "edu.cmu.srs"})
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           '--> Explicityly list base packages to scan
+ 
+public class SpringcoredemoApplication {
+  ...
+}
+-------------------------------------
+
+Annotations
+ - @SpringBootApplication is composed of the following annotations:
+
+.--------------------------.--------------------------------------------------.
+|       Annotation         |                  Description                     |
+|--------------------------+--------------------------------------------------|
+| @EnableAutoConfiguration | Enables Spring Boot's auto-configuration support |
+|                          |                                                  |
+|--------------------------+--------------------------------------------------|
+| @ComponentScan           | Enables component scanning of current package    |
+|                          | Also recursively scans sub-packages              |
+|--------------------------+--------------------------------------------------|
+| @Configuration           | Able to register extra beans with @Bean          |
+|                          | or import other configuration classes            |
+'--------------------------'--------------------------------------------------'
+
+
+<< SETTER INJECTION >>
+Inject dependencies by calling setter method(s) on your class
+
+Autowiring Example
+ - Injecting a Coach implementation
+ - Spring will scan for @Components
+ - Any one implements the Coach interface???
+ - If so, let's inject them. For example: CricketCoach
+
+Development Process - Setter Injection
+1. Create setter mehtod(s) in your class for injections
+
+File: DemoController.java
+--------------------------------------
+@RestController
+public class DemoController {
+
+  private Coach myCoach;
+
+> public void setCoach(Coach theCoach) {
+    myCoachh = theCoach;
+> }
+
+  ...
+}
+--------------------------------------
+
+
+
+2. Configure the dependency injection with @Autowired Annotation
+
+File: DemoController.java
+--------------------------------------
+@RestController
+public class DemoController {
+
+  private Coach myCoach;
+
+> @Autowired
+  public void setCoach(Coach theCoach) {
+    myCoach = theCoach;
+  }
+
+  ...
+}
+--------------------------------------
+
+How Spring Processes your application
+
+.------------. .-------------------. .---------------------.
+| Coach.java | | CricketCoach.java | | DemoController.java |
+'------------' '-------------------' '---------------------'
+
+Spring Framework
+.-------------------------------------------------------.
+| Coach theCoach = new CricketCoach();                  |
+| DemoController demoController = new DemoController(); |
+| demoController.setCoach(theCoach);                    |
+'-------------------------------------------------------'
+
+We want to inject the dependency into our DemoController.
+Behind the scenes, 
+Spring will create an instance of the CricketCoach.
+It'll create an instance of the DemoController,
+and then it'll say DemoController.setCoach,
+and it'll pass in the Coach implementation.
+
+Inject dependencies by calling ANY method on your class
+Simply give: @Autowired
+
+2. Configure the dependency injection with @Autowired Annotation
+
+File: DemoController.java
+--------------------------------------
+@RestController
+public class DemoController {
+
+  private Coach myCoach;
+
+> @Autowired
+  public void doSomeStuff(Coach theCoach) {
+              ^^^^^^^^^^^
+               '--> Can use any method name
+    myCoach = theCoach;
+  }
+
+  ...
+}
+--------------------------------------
+
+
+<< FIELD INJECTION >>
+Spring Injection Types
+ - Recommended by the spring.io development team
+   - Constructor Injection: required dependencies
+   - Setter Injection: optional dependencies
+
+ - Not recommended by the spring.io decelopment team
+   - Field Injection
+
+Field Injection ... no longer cool
+ - In the early days, filed injection was popular on Spring projects
+   - In recent years, it has fallen out of favor
+
+ - In general, it makes the code harder to unit test
+
+ - As a result, the spring.io team does not recommend field injection
+   - However, you will still see it being used on legacy projects
+
+Injection dependencies by setting filed values on your class directly (even private fields)
+Accomplished by using Java Reflection
+
+Step 1: Configure the dependency injection with Autowired Annotation
+
+file: DemoController.java
+--------------------------------------
+...
+
+@RestController
+public class DemoController {
+  
+  @Autowired
+  private Coach myCoach;
+  ^^^^^^^^^^^^^^^^^^^^^^
+   '--> Field injection
+
+  // no need for constructors or setters
+
+  @GetMapping("/dailyworkout")
+  public String getDailyWorkout() {
+    return myCoach.getDailyWorkout();
+  }
+}
+--------------------------------------
+
+
+<< QUALIFIERS >>
+Autowiring
+ - Injecting a Coach implementation
+ - Spring will scan @Components
+ - Any one implements Coach interface???
+ - If so, let's inject them ... which one?
+
+Multiple Coach Implementations
+
+                           .-----------.
+      .------------------->|   Coach   |<--------------.
+      |               .--->'-----------'<--.           |
+      |               |                    |           |
+.--------------. .---------------. .------------. .-------------.
+| CricketCoach | | BaseballCoach | | TrackCoach | | TennisCoach |
+'--------------' '---------------' '------------' '-------------'
+
+Solution: Be specific! - @Qualifier
+
+file: DemoController.java
+--------------------------------------
+...
+
+@RestController
+public class DemoController {
+  
+  private Coach myCoach
+
+  @Autowired
+  public DemoController(@Qualifier("circketCoach") Coach theCoach) {
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+                         '--> Specify the bean id: cricketCoach
+                              Same name as class, first character lower-case
+    myCoach = theCoach;
+  }
+
+  @GetMapping("/dailyworkout")
+  public String getDailyWorkout() {
+    return myCoach.getDailyWorkout();
+  }
+}
+--------------------------------------
+
+
+
+
+
+
+
+
+
