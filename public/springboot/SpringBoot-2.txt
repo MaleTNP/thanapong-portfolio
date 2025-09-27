@@ -510,7 +510,7 @@ public class DemoController {
   private Coach myCoach
 
   @Autowired
-  public DemoController(@Qualifier("circketCoach") Coach theCoach) {
+  public DemoController(@Qualifier("cricketCoach") Coach theCoach) {
                         ^^^^^^^^^^^^^^^^^^^^^^^^^
                          '--> Specify the bean id: cricketCoach
                               Same name as class, first character lower-case
