@@ -22,7 +22,7 @@ export const JOURNEY = [
   },
   {
     position: 'Aerospace Engineer Student',
-    company: 'KMUNB',
+    company: 'KMUTNB',
     date: '05/2017 - 05/2021',
     location: 'Bangkok',
     description:

@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@theme {
+  --color-aqua: #00CED;
+  --color-light-cyan: #00FFFF;
+  --color-light-blue: #ADD8E6;
+}
