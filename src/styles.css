@@ -1,0 +1,31 @@
+/* @keyframes fade-in {
+  from {
+    transform: translate(0, 60px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in linear;
+  animation-timeline: view();
+  animation-range-start: contain;
+  animation-range-end: 700px;
+} */
+
+@media (prefers-reduced-motion: no-preference) {
+  .animation-fade-in {
+    scale: .8; opacity: 0;
+    animation: fade-in linear forwards;
+    animation-timeline: view();
+    animation-range: entry;
+  }
+  
+  @keyframes fade-in {
+    to { scale: 1; opacity:1}
+  }
+}
+

@@ -18,7 +18,7 @@ export default function AboutMe() {
         </div>
 
         {/* Text Content */}
-        <div className="max-w-2xl">
+        <div className="max-w-2xl text-center">
           <h2 className="text-3xl md:text-4xl font-semibold mb-4">
             I'm <span className="text-light-cyan">Thanapong Yooyen</span>, a programmer who loves bringing ideas 
             to life with code.
@@ -48,7 +48,7 @@ export default function AboutMe() {
           {/* Donwload Resume Button */}
           <div class="inline-block mt-8 p-2 border-2 border-light-cyan rounded-full">
             <a className="flex items-center space-x-4" href="">
-              <div className="">
+              <div>
                 <img className="w-8 h-8 bg-light-cyan rounded-full" src={arrowDown} alt=""/>
               </div>
               <label className="text-light-cyan pr-2">Resume</label>

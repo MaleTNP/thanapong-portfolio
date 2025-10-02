@@ -4,4 +4,16 @@
   --color-aqua: #00CED;
   --color-light-cyan: #00FFFF;
   --color-light-blue: #ADD8E6;
+  /* --animate-fade-in: fade-in 1s;
+
+  @keyframes fade-in {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 100;
+    }
+  } */
 }
