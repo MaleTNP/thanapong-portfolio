@@ -46,7 +46,7 @@ export default function AboutMe() {
           </div>
 
           {/* Donwload Resume Button */}
-          <div class="inline-block mt-8 p-2 border-2 border-light-cyan rounded-full">
+          <div className="inline-block mt-8 p-2 border-2 border-light-cyan rounded-full">
             <a className="flex items-center space-x-4" href="">
               <div>
                 <img className="w-8 h-8 bg-light-cyan rounded-full" src={arrowDown} alt=""/>
@@ -54,6 +54,7 @@ export default function AboutMe() {
               <label className="text-light-cyan pr-2">Resume</label>
             </a>
           </div>
+          
         </div>
       
       </div>

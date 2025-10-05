@@ -1,6 +1,5 @@
-import ReactImg from '../assets/others/Spring-Boot-Male.png'
 
-export default function ProjectCard() {
+export default function ProjectCard({ image, title, description, tech }) {
   return <>
     {/* Project Card */}
     <div className="bg-white rounded-2xl overflow-hidden">
@@ -9,32 +8,40 @@ export default function ProjectCard() {
       <div>
         <img 
           className="w-full object-cover"
-          src={ReactImg} alt="" 
+          src={image} alt="" 
         />
       </div>
 
       {/* Project Content */}
-      <div>
-        <h3>Portfolio Website</h3>
-        <p>
-          My portfolio website showcases my journey, skills, blog posts, and projects. 
-          It was built using a core technology stack of React, Tailwind CSS, and 
-          JavaScript, providing me with real, hands-on development experience
-        </p>
+      <div className="p-4 space-y-2">
+        <h3 className="text-2xl font-bold">{title}</h3>
+        <p>{description}</p>
 
         {/* Tech Stack List */}
-        <div>
-          <div></div>
+        <div className="flex flex-wrap gap-3 my-4">
+          {tech.map( (techItem) => (
+            <TechStackList key={techItem.name} {...techItem}/>
+          ))}
         </div>
 
         {/* Project Link */}
-        <div>
-          <button className="bg-amber-500">Live Demo</button>
-          <button className="bg-amber-400">GitHub</button>
+        <div className="space-x-2 mt-4">
+          <a className="px-4 py-1 bg-aqua text-white rounded-lg">Live Demo</a>
+          <a className="px-4 py-1 bg-black hover:bg-gray-700 text-white rounded-lg">GitHub</a>
         </div>
 
       </div>
 
+    </div>
+  </>
+}
+
+
+function TechStackList({ icon, name }) {
+  return <>
+    <div className="p-1.5 flex bg-gray-100 rounded-lg space-x-2">
+      <img className="w-5 h-5" src={icon}/>
+      <label className="text-sm">{name}</label>
     </div>
   </>
 }
