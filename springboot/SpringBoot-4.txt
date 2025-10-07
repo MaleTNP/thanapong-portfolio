@@ -1,0 +1,2022 @@
+SECTION 4: REST CRUD APIs
+
+<< WHAT ARE REST SERVICES >>
+You will learn how to ...
+ - Create REST APIs / Web Services with Spring
+ - Discuss REST concepts, JSON and HTTP messaging
+ - Install REST client tool: Postman
+ - Develop REST APIs / Web Services with @RestController
+ - Build a CRUD interface to the database with Spring REST
+
+Practical Results
+ - Introduction to Spring REST development
+ - Not an A to Z reference ... for that you can see Spring Reference Manual
+www.luv2code.com/spring-reference-manual
+
+Business Problem
+ - Build a client app that provides the weather report for a city
+ - Need to get weather data from an external service
+
+Application Architecture
+
+.---------.        City        .------------.
+|    My   | -----------------> |   Weather  |
+| Weather | <----------------- |   Service  |
+|   App   |   Weather Report   | (external) |
+'---------'                    '------------'
+  ^                                        ^
+  '-- App that we are creating (CLIENT)    '-- Provided by External Third Party (SERVER)
+
+Questions
+ - How will we connect to the Weather Service?
+ - What programming language do we use?
+ - What is the data format?
+
+Answers
+ - How will we connect to the Weather Service?
+   - We can make REST API calls over HTTP
+   - REST: REpresentational State Transfer
+   - Lightweight approach for communicating between applications
+
+ - What programming language do we use?
+   - RESt is language independent
+   - The client application can use ANY programming language
+   - The server application can use ANY programming language
+
+ - What is the data format?
+   - REST application can use any data format
+   - Commonly see XML and JSON
+   - JSON is most popular and modern
+     - JavaScript Object Notation
+
+Possible Solution
+ - Use online Weather Service API provided by: openweathermap.org
+ - Provide weather data via an API
+ - Data is available in multiple formats: JSON, XML etc ...
+
+Call Weather Service
+ - The API documentation gives us the following:
+   - Pass in the latitude and longitude for your desired location
+
+   api.openweathermap.org/data/<apiVersion>/onecall?lat={theLatitude}&lon={theLongitude}
+
+Response - Weather Report 
+ - The Weather Service responds with JSON
+
+{
+  ...
+  "temp": xxx,
+  "feels_like": yyy,
+  "humidity": zzz,
+  ...
+}
+
+Currency Converter App
+
+.---------.   USD to INR, 100.00    .------------.
+|    My   | ----------------------> |  Currency  |
+| Weather | <---------------------- |   Service  |
+|   App   |       6,478.52 INR      | (external) |
+'---------'       ^^^^^^^^          '------------'
+                   '--> This fluctuates based on the market
+
+Movie Tickets App
+
+.---------.   Movie, Location, Time   .---------------.
+|    My   | ------------------------> | Movie Tickets |
+| Weather | <------------------------ |    Service    |
+|   App   |       Movie Results       |   (external)  |
+'---------'                           '---------------'
+
+Customer Relationship Manager (CRM) APP
+
+.---------.        Get customers      .---------------.
+|         | ------------------------> |      CRM      |
+| CRM APP | <------------------------ |    Service    |
+|         |        Customer list      | (spring-rest) |<-.
+'---------'                           '---------------'  |
+  We will create this code using Spring REST (SERVER) ---'
+
+What do we call it?
+ - REST API
+ - RESTful API
+ - REST Web Services
+ - RESTful Web Services
+ - REST Services
+ - RESTful Services
+Generally, all mean the SAME thing
+
+
+<< JSON BASICS >>
+What is JSON?
+ - JavaScript Object Notation
+ - Lightweight data format for storing and exchange data ... plain text
+ - Language independent ... not just for JavaScript
+ - Can use with any programming language: Java, C#, Python etc ...
+Note: JSON is just plain text data
+
+Simple JSON Example
+ - Curley braces define objects in JSON
+ - Object members are name / value pairs
+   - Delimited by colons
+ - Name is always in double-quotes
+
+{
+  "id": 14,
+  "firstName": "Mario",
+  "lastName": "Rossi",
+  "active": true,
+  "course": null,
+  "languages": ["Java", "C#", "Python", "Javascript"],
+  "address": {
+		"street": "100 Main St",
+		"city":  "Philadelphia",
+		"state": "Pennsylvania",
+		"zip": "19103",
+		"conuntry": "USA"
+	     }
+}
+
+JSON Values
+ - Numbers: no quotes
+ - String: in double quotes
+ - Boolean: true, false
+ - Nested JSON object
+ - Array
+ - null
+
+
+<< SPRING BOOT REST HTTP BASICS >>
+ - Most common use of REST is over HTTP
+ - Leverage HTTP methods for CRUD operations
+
+.-------------.------------------------------------------.
+| HTTP Method |              CRUD Operation              |
+|-------------+------------------------------------------|
+| POST        | Create a new entity                      |
+|-------------+------------------------------------------|
+| GET         | Read a list of entities or single entity |
+|-------------+------------------------------------------|
+| PUT         | Update an existing entity                |
+|-------------+------------------------------------------|
+| DELETE      | Delete an existing entity                |
+'-------------'------------------------------------------'
+
+HTTP Messages
+
+Client                                Server
+.---------.   HTTP Request Message    .---------------.
+|         | ------------------------> |      CRM      |
+| CRM APP | <------------------------ |    Service    |
+|         |   HTTP Response Message   | (spring-rest) |
+'---------'                           '---------------'
+
+HTTP Request Message
+ - Request line: the HTTP
+ - Header variables: request metadata
+ - Message body: contents of message
+
+HTTP Response Message
+ - Response line: server protocol and status code
+ - Header variables: response metadata
+ - Message body: contents of message
+
+HTTP Response - Status Codes
+
+.------------.---------------.
+| Code Range |  Description  |
+|------------+---------------|
+| 100 - 199  | Informational |
+|------------+---------------|
+| 200 - 299  | Successful    |
+|------------+---------------|
+| 300 - 399  | Redirection   |
+|------------+---------------|
+| 400 - 499  | Client error  |<-- 401 Authentication Required
+|------------+---------------|    404 File Not Found
+| 500 - 599  | Server error  |<-- 500 Internal Server Error
+'------------'---------------'
+
+MIME Content Types
+ - The message format is described by MIME content type
+   - Multipurpose Internet Mail-Extention
+ - Basic Syntax: type/sub-type
+ - Examples
+   - text/html, text/plain
+   - application/json, application/xml, ...
+
+Client Tool
+ - We need a client tool
+ - Sent HTTP requests to the REST Web Service / API
+ - Plenty of tools available: curl, Postman, etc ...
+
+Install Postman Now
+www.getpostman.com
+
+
+<< SPRING BOOT REST CONTROLLER >>
+
+Spring REST HELLO WORLD
+
+.--------.   /test/hello   .---------.
+|  REST  | --------------> |   REST  |
+| Client | <-------------- | Service |
+'--------'   Hello World!  '---------'
+  ^                              ^
+  '-- Web Browser Or Postman     '-- We will write this code
+
+Spring REST Controller
+
+---------------------------------
+@RestController    <-- Adds REST support
+@RequestMapping("/test")
+public class DemoRestController {
+
+  @GetMapping("/hello")   <-- Access the REST endpoint at /test/hello
+  public String sayHello() {
+    return "Hello World!";   <-- Returns content to client
+  }
+}
+---------------------------------
+
+Testing with REST Client - Postman
+Testing with REST Client - Web Browser
+
+url: localhost:8080/spring-rest-demo/test/hello
+response: Hello World!
+
+Web Browser vs Postman
+ - For simple REST testing for GET requests
+   - Web Browser and Postman are similar
+ - However, for advanced REST testing: POST, PUT etc ...
+   - Postman has much better support
+   - POSTing JSON data, setting content type
+   - Passing HTTP request headers, autherntication etc ...
+
+Development Process
+1. Add Maven dependency for Spring Boot Starter Web
+
+File: pom.xml
+---------------------------------
+<!-- Add Spring Bott Starter Web -->
+<dependency>
+  <groupId>org.springframework.boot</group>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+---------------------------------
+At Spring Initializr website, can also select the "Web" dependency
+
+2. Create Spring REST Service using @RestController
+
+---------------------------------
+@RestController
+@RequestMapping("/test")
+public class DemoRestController {
+
+  @GetMapping("/hello")  <-- Handles HTTP GET requests
+  public String sayHello() {
+    return "Hello World!";
+  }
+}
+---------------------------------
+
+
+<< JSON JACKSON DATA BLINDING >>
+Java JSON Data Binding
+ - Data binding is the process of converting JSON data to a Java POJO
+
+.------. --------------> .-----------.
+| JSON |  Data Binding   | Java POJO |
+'------' <-------------- '-----------'
+
+Also known as Mapping Serialization/Deserialization, Marshalling/Unmarshalling
+
+JSON Data Binding with Jackson
+ - Spring uses the Jackson Project behind the scenes
+ - Jackson handles data binding between JSON and Java POJO
+ - Details Jackson Project
+https://github.com/FasterXML/jackson-databind
+
+Note: Spring Boot Starter Web automatically includes dependency for Jackson
+
+ - By default, Jackson will call appropriate getter/setter method
+
+.-------------------------.
+| {                       |
+|   "id": 14,             |        .-----------.
+|   "firstName": "Mario", | -----> | Java POJO |
+|   "lastName": "Rossi",  | <----- |  Student  |
+|   "active": true        |        '-----------'
+| }                       |
+'-------------------------'
+
+JSON to Java POJO
+ - Convert JSON to Java POJO ... call setter methods on POJO
+
+.-------------------------.    call
+| {                       |   setXXX
+|   "id": 14,             |   methods   .-----------.
+|   "firstName": "Mario", | ----------> | Java POJO |
+|   "lastName": "Rossi",  |      ^      |  Student  |
+|   "active": true        |      |      '-----------'
+| }                       |      |
+'-------------------------'      '-- Jackson will do this work
+
+
+file: 
+---------------------------------
+public class Student {
+
+  private int id;
+  private String firstName;
+  private String lastName;
+  private boolean active;
+
+  public void setId(int id) {  <-- call setId(...) "id": 14
+    this.id = id;
+  }
+
+  public void setFirstName(String firstName) {   <== call setFirstName(...) "firstName": "Mario"
+    this.firstName = firstName;
+  }
+
+  public void setLastName(String lastName) {   <== call setLastName(...) "lastName": "Rossi"
+    this.lastName = lastName;
+  }
+
+  public void setActive(boolean active) {   <== call setActive(...) "active": true
+    this.active = active;
+  }
+
+  // getter methods
+}
+---------------------------------
+Note: Jackson calls the setXXX methods. It does NOT access internal private fields directly
+
+Java POJO to JSON
+ - Now, let's go the other direction
+ - Convert Java POJO to JSON ... call getter methods on POJO
+
+.-------------------------.    call
+| {                       |   getXXX
+|   "id": 14,             |   methods   .-----------.
+|   "firstName": "Mario", | <---------- | Java POJO |
+|   "lastName": "Rossi",  |      ^      |  Student  |
+|   "active": true        |      |      '-----------'
+| }                       |      |
+'-------------------------'      '-- Jackson will do this work
+
+Spring and Jackson Support
+ - When building Spring REST application
+ - Spring will automatically handle Jackson Integration
+ - JSON data being passed to REST controller in converted to POJO
+ - Java object being returned from REST controller is converted to JSON
+
+
+<< SPRING BOOT REST POJO >>
+Create a New Service
+ - Return a list of students
+   
+   GET  /api/students  Returns a list of students
+
+Spring REST Service
+
+.--------.   /api/students    .---------. <== We will write this code
+|  REST  | -----------------> |  REST   |
+| Client | <----------------- | Service |
+'--------'       /\           '---------'
+                 ||
+List<Student>    ||
+.------------------------------. Jackson will convert to JSON array
+| [                            |
+|   {                          |
+|     "firstName": "Poornimo", |
+|     "lastName": "Patel"      |
+|   },                         |
+|   {                          |
+|     "firstName": "Mario",    |
+|     "lastName": "Rossi"      |
+|   },                         |
+|   {                          |
+|     "firstName": "Mary",     |
+|     "lastName": "Smith"      |
+|   }                          |
+| ]                            |
+'------------------------------'
+
+Convert Java POJO to JSON
+ - Our REST Service will return List<Student>
+ - Need to convert List<Student> to JSON
+ - Jackson can help us out with this ...
+
+Spring and Jackson Support
+ - Spring will automatically handle Jackson Integration
+ - JSON data being passed to REST controller in converted to POJO
+ - Java object being returned from REST controller is converted to JSON
+ > Happens automaticeally behind the scenes
+ > Spring Boot Starter Web automatically includes dependency for Jackson
+
+Behind the scenes
+
+.--------.                  .-------------.
+|        |  /api/students   | Spring REST |        ,-- We will write this code
+|  REST  | ---------------> | .---------. |      .--------------.
+| Client | <--------------- | | Jackson |<=====> | REST Service |
+|        |   List<Student>  | '---------' |      '--------------'
+'--------'                  '----|--------'        '-- We will return List<Student>
+                                 |
+                   Jackson will convert List<Student> to JSON array
+
+Development Process
+1. Create Java POJO class for Student
+
+Student POJO (class)
+.------------------------.
+|         Student        |
+|------------------------|
+| firstName: String      |
+| lastName: String       |
+|------------------------|
+| getFirstName(): String |
+| setFirstName(): void   |
+| getLastName(): String  |
+| setLastName(): void    |
+'------------------------'
+
+File: Student.java
+---------------------------------
+public class Student {
+
+  private String firstName;
+  private String lastName;
+
+  public Student(String firstName, String lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+}
+---------------------------------
+
+2. Create Spring REST Service using @RestController
+
+File: StudentRestController.java
+---------------------------------
+@RestController
+@RequestMapping("/api")
+public class StudentRestController {
+  
+  // define endpoint for "/students" - return list of students
+
+  @GetMapping("/students")
+  public List<Student> getStudent() {
+
+    List<Student> theStudents = new ArrayList<>();
+
+    theStudents.add(new Student("Poornima", "Patel"));
+    theStudents.add(new Student("Mario", "Rossi"));
+    theStudents.add(new Student("Mary", "Smith"));
+
+    return theStudents;
+  }
+}
+---------------------------------
+
+
+<< SPRING BOOT REST PATH VARIABLE >>
+Path Variables
+ - Retrieve a single sutdent by id
+
+   GET  /api/students/{studentId}  Retrieve a single student
+                      ^^^|^^^^^^
+                      .--'   '-- Known as a "path variable"
+                      V
+   GET  /api/students/0
+   GET  /api/students/1
+   GET  /api/students/2
+
+Spring REST Service
+
+.--------.   /api/students/{studentId}  .---------. <== We will write this code
+|  REST  | ---------------------------> |  REST   |
+| Client | <--------------------------- | Service |
+'--------'       /\                     '---------'
+           .----'  '-----------------.
+           | {                       |
+           |   "firstName": "Mario", |
+           |   "lastName": "Rossi"   |
+           | }                       |
+           '-------------------------'
+
+Behind the scenses
+
+.--------.  /api/students/  .-------------.
+|        |  {studentId}     | Spring REST |        ,-- We will write this code
+|  REST  | ---------------> | .---------. |      .--------------.
+| Client | <--------------- | | Jackson |<=====> | REST Service |
+|        |   Student JSON   | '---------' |      '--------------'
+'--------'                  '----|--------'        '-- We will return Student
+                                 |
+                   Jackson will convert Student to JSON
+
+Development Process
+1. Add request mapping to Spring REST Service
+   - Bind paht variable to method parameter using @PathVariable
+
+File: StudentRestController.java
+---------------------------------
+@RestController
+@RequestMapping("/api")
+public class StudentRestController {
+
+  // define endpoint for "/students/{studentId}" - return student at index
+
+  @GetMapping("/students/{studentId}")
+                         ^^^^^^^^^^^        Binding Path variable (by default, must match)
+                          '--------------------.
+                                               | 
+  public Student getStudent(@PathVariable int studentId) {
+
+    List<Student> theStudents = new ArrayList<>();
+
+    // populate theStudents
+    ...
+
+    return theStudents.get(studentId);  <== Keep it simple, just index into the list, 
+                                            we'll do fancy DB stuff later
+  }
+}
+---------------------------------
+
+
+<< SPRING BOOT REST EXCEPTION HANDLING >> 
+Our problem?
+ - Bad student id of 11 ...
+
+   Internal Server Error
+.---------------------------------------------.
+|  {                                          |
+|    "timestamp": "2025-10-05T12:16:50.929Z", |
+|    "status": 500,                           |
+|    "error": "Internal Server Error",        |
+|    "path": "/api/students/11"               |
+|  }                                          |
+'---------------------------------------------'
+
+We really want this ...
+ - Handle the exception and return error as JSON
+
+   Our desired output exception/error formatted as JSON
+.---------------------------------------------.
+|  {                                          |
+|    "status": 404,                           |
+|    "error": "Student id not found - 11",    |
+|    "timeStamp": 15261496                    |
+|  }                                          |
+'---------------------------------------------'
+
+Spring REST Exception Handling
+
+.--------.                Bad data  .-----------------------.
+|        |  /api/students/11        |      REST Service (Throw exception)
+|  REST  | -----------------------> | .-------------------. |
+| Client | <----------------------- <-| Exception Handler | |
+|        |   exception/error JSON   | '-------------------' |
+'--------'                          '-----------------------' 
+
+Development Process
+1. Create a custom error response class
+ - The custom error reponse class will be sent back to client as JSON
+ - We will define as Java class (POJO)
+
+You can define any custom fields that you want to track
+.------------------------.
+| StudentErrorResponse   |
+|------------------------|
+| status: int            |
+| message: String        |
+| timeStamp: long        |
+|------------------------|
+| getStatus(): String    |
+| setStatus(): void      |
+| ...                    |
+'------------------------'
+
+ - Jackson will handle converting it to JSON
+
+file: StudentErrorResponse.java
+---------------------------------
+public class StudentErrorResponse {
+
+  private int status;
+  private String message;
+  private long timeStamp;
+
+  // constructor
+
+  // getters / setters
+}
+
+---------------------------------
+
+2. Create a custom exception class
+ - The custom student exception will used by our REST service
+ - In our code, if we can't find student, then we'll throw an exception
+ - Need to define a custom student exception class
+   - StudentNotFoundException
+
+file: StudentNotFoundException.java
+---------------------------------
+public class StudentNotFoundException extends RuntimeException {
+
+  public StudentNotFoundException(String message) {
+    super(message);
+  } ^^^^^
+}    '-- Call super class constructor
+---------------------------------
+
+3. Update REST service to throw exception if student not found
+
+file: StudentRestController.java
+---------------------------------
+@RestController
+@RequestMapping("/api")
+public class StudentRestController {
+
+  @GetMapping("/student/{studentId}")
+  public Student getStudent(@PathVariable int studentId) {
+
+    // check the studentId against list size
+
+    if (studentId >= theStudents.size()) || (studentId < 0) ) {
+      throw new StudentNotFoundException("Student id not found ... " + studentId);
+    }
+
+    return theStudent.get(studentId);
+
+  }
+  ...
+}
+---------------------------------
+
+4. Add an exception handler method using @ExceptionHandler
+ - Define exception handler method(s) with @ExecptionHandler annotation
+ - Exception handler will return a ResponseEntity
+ - ResponseEntity is a wrapper for the HTTP response object
+ - ResponseEntity provides fine-grained control to specify:
+   - HTTP status code, HTTP headers and Response body
+
+file: StudentRestController.java
+---------------------------------
+@RestController
+@RequestMapping("/api")
+public class StudentRestController {
+  ...
+
+  @ExceptionHandler
+  ^^^^^^^^^^^^^^^^^
+   '-- Exception handler method
+  public ResponseEntity<StudentErrorResponse> handleException(StudentNotFoundException exc) {
+                        ^^^^^^^^^^^^^^^^^^^^                  ^^^^^^^^^^^^^^^^^^^^^^^^
+                         '-- Type of the reponse body          '-- Exception type to handle/catch
+
+    StudentErrorResponse error = new StudentErrorResponse();
+
+    error.setStatus(HttpStatus.NOT_FOUND.value());
+                               ^^^^^^^^^
+                                '-- Basically a 404
+    error.setMessage(exc.getMessage());
+    error.setTimeStamp(System.currentTimeMillis());
+
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+                                ^^^^^             ^^^^^^^^^
+                                 '-- body          '-- Status code 404
+  }
+}
+---------------------------------
+
+Spring REST Exception Handling
+
+.--------.                Bad data  .-----------------------.
+|        |  /api/students/999<--'   |      REST Service   (Throw exception)
+|  REST  | -----------------------> | .-------------------. |
+| Client | <----------------------- <-| Exception Handler | |
+|        |   exception/error JSON   | '-------------------' |
+'--------'                          '-----------------------' 
+
+
+<< SPRING BOOT REST GLOBAL EXCEPTION HANDLING >>
+Spring REST Exception Handling
+
+.--------.                Bad data  .-----------------------.
+|        |  /api/students/999<--'   |      REST Service   (Throw exception)
+|  REST  | -----------------------> | .-------------------. |
+| Client | <----------------------- <-| Exception Handler | |
+|        |   exception/error JSON   | '-------------------' |
+'--------'                          '-----------------------' 
+
+It works, but ...
+ - Exception handler code is only for the specific REST controller
+ - Can't be reused by other controllers
+    '-- Large projects will have multiple controllers
+ - We need global exception handlers
+   - Promotes reuse
+   - Centralizes exception handling
+
+Spring @ControllerAdvice
+ - @ControllerAdvice is similar to an interceptor / filter
+ - Pre-process request to controllers
+ - Post-process response to handle exceptions
+ - Perfect for globla exception handling
+Note: We can see some realtime use of AOP
+
+Spring REST Exception Handling
+
+.--------.                        .----------------. .---------.
+|        |                        |   Controller   | |  REST   |
+|        |  /api/students/9999    |     Advice     --> Service |
+|  REST  | -------------------->  | .------------. | |         |
+| Client | <--------------------  | | Exception  | | |  o      |
+|        |   exception/error      | | Handler(s) |<-----X Throw exception
+|        |    JSON format 404     | '------------' | |         |
+'--------'                        '----|-----------' '---------'
+                                       '-- Global exception handling
+Development Process
+1. Create new @ControllerAdvice
+
+File: StudentRestExceptionHandler.java
+---------------------------------
+@ControllerAdvice
+public class StudentRestExceptionHandler {
+  ...
+}
+---------------------------------
+
+2. Refactor REST service ... remove exception handling code
+
+File: StudentRestController.java
+---------------------------------
+@RestController
+@RequestMapping("/api")
+public class StudentRestController {
+
+.-- Remove this code
+|
+>  @ExceptionHandler
+>  public ResponseEntity<StudentErrorResponse> handleException(StudentNotFoundException exc) {
+>
+>    StudentErrorResponse error = new StudentErrorResponse;
+>
+>    error.setStatus(HttpStatus.NOT_FOUND.value());
+>    error.setMessage(exc.getMessage());
+>    error.setTimeStamp(System.currentTimeMillis());
+>
+>    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+  }
+}
+---------------------------------
+
+3. Add exception handling code to @ControllerAdvice
+
+same as before
+File: StudentRestExceptionHandler.java
+---------------------------------
+@ControllerAdvice
+public class StudentRestExceptionHandler {
+
+  @ExceptionHandler
+  public ResponseEntity<StudentErrorResponse> handleException(StudentNotFoundException exc) {
+    
+    StudentErrorResponse error = new StudentErrorResponse;
+
+    error.setStatus(HttpStatus.NOT_FOUND.value());
+    error.setMessage(exc.getMessage());
+    error.setTimeStamp(System.currentTimeMillis());
+
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+  }
+}
+---------------------------------
+
+
+<< SPRING BOOT REST API DESIGN >>
+REST API Design
+ - For real-time projects, who will use your API?
+ - Also, how will they use your API?
+ - Design the API based on requirements
+
+API Design Process
+1. Review API requirements
+
+API Requirements
+Create a REST API for the Employee Directory
+REST clients should be able to
+ - Get a list of employees
+ - Get a single employee
+ - Add a new employee
+ - Update an employee
+ - Delete an employee
+Note: Full CRUD
+
+2. Identify main resource / entity
+
+ - To identify main resource / entity, look for the most prominent "noun"
+ - For our project, it is "employee"
+ - Convention is to use plural form of resource / entity: employees
+
+   /api/employees
+
+3. Use HTTP methods to assign action on resource
+
+.-------------.------------------------------------------.
+| HTTP Method |                CRUD Action               |
+|-------------|------------------------------------------|
+|    POST     | Create a new entity                      |
+|-------------|------------------------------------------|
+|     GET     | Read a list of entities or single entity |
+|-------------|------------------------------------------|
+|     PUT     | Update an existing entity                |
+|-------------|------------------------------------------|
+|   DELETE    | Delete an existing entity                |
+'-------------'------------------------------------------'
+
+Employee Real-Time Project
+
+.-------------.-----------------------------.-----------------------------.
+| HTTP Method |           Endpoint          |        CRUD Action          |
+|-------------+-----------------------------+-----------------------------|
+|    POST     | /api/employees              | Create a new employee       |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees              | Read a list of employees    |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees/{employeeId} | Read a single of employee   |
+|-------------|-----------------------------|-----------------------------|
+|     PUT     | /api/employees              | Update an existing employee |
+|-------------|-----------------------------|-----------------------------|
+|   DELETE    | /api/employees/{employeeId} | Delete an existing employee |
+'-------------'-----------------------------'-----------------------------'
+
+Anti-Patterns
+ - DO NOT DO THIS ... these are REST anti-patterns, bad practice
+ 
+ /api/employeesList
+ /api/deleteEmployee
+ /api/addEmployee
+ /api/updateEmployee
+      ^^^^^^^^^^^^^^
+       '-- X  Don't include actions in the endpoint
+           ./ Instead, use HTTP methods to assign actions
+
+.---------------.       
+|   Employee    |       .----.
+|    Service    | <---> |----|
+| (spring-rest) |       |----|
+'---------------'       '----'
+
+More API Examples
+ - On the following, we'll look at APIs from other real-time projects
+   - PayPal
+   - GitHub
+   - SaleForce
+
+PayPal
+ - PayPal Invoicing API
+   - https://developer.paypal.com/docs/api/invoicing/
+.---------------------------------------------.
+| PayPal Developer      Docs   APIs   Support |
+'---------------------------------------------'
+
+Create draft invoice
+POST /v1/invoicing/invoices
+
+List invoices
+GET  /v1/invoicing/invoices
+
+Show invoice details
+GET  /v1/invoicing/invoices/{invoice_id}
+
+Update invoice
+PUT  /v1/invoicing/invoices/{invoice_id}
+
+Delete draft invoice
+DELETE  /v1/invoicing/invoices/{invoice_id}
+
+
+GitHub
+ - GitHub Repositories API
+   - https://developer.github.com/v3/repos/#repositories
+
+Create a new repository
+POST  /user/repos
+
+Delete a repository
+Delete  /repos/:owner/:repo
+
+List you repositories
+GET  /user/repos
+
+Get a repository
+GET  /repos/:owner/:repo
+
+
+SalesForce REST API
+ - Industries REST API
+   - https://sforce.co/2J40ALH
+
+Retrieve All Individuals
+GET  /services/apexrest/v1/individual/
+
+Retrieve One Individual
+GET  /sevices/aprexrest/v1/individual/{individual_id}
+
+Create an individual
+POST  /services/aprexrest/clinic01/v1/individual
+
+Update an individual
+PUT  /services/aprexrest/clinic01/v1/individual/
+
+
+<< SPRING BOOT REST PROJECT >>
+Real-Time Project
+
+REST API with Spring Boot that connects to a database
+
+.-------------.       
+|  REST API   |       .----.
+|    with     | <---> |----|
+| Spring Boot |       |----|
+'-------------'       '----'
+
+API Requirements - From the Boss
+Create a REST API for the Employee Directory
+REST clients should be able to
+ - Get a list of employees
+ - Get a single employee
+ - Add a new employee
+ - Update an employee
+ - Delete an employee
+
+REST API
+.-------------.-----------------------------.-----------------------------.
+| HTTP Method |           Endpoint          |        CRUD Action          |
+|-------------+-----------------------------+-----------------------------|
+|    POST     | /api/employees              | Create a new employee       |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees              | Read a list of employees    |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees/{employeeId} | Read a single of employee   |
+|-------------|-----------------------------|-----------------------------|
+|     PUT     | /api/employees              | Update an existing employee |
+|-------------|-----------------------------|-----------------------------|
+|   DELETE    | /api/employees/{employeeId} | Delete an existing employee |
+'-------------'-----------------------------'-----------------------------'
+
+Development Process
+1. Set up Database Dev Environment
+2. Create Spring Boot project using Spring Initializr
+3. Get list of employees
+4. Get single employees
+5. Add a new employee
+6. Update an existing employee
+7. Delete an existing employee
+
+Application Architecture
+
+.---------------.       .----------.       .----------.       .----.
+| Employee REST | <---> | Employee | <---> | Employee | <---> |----|
+|  Controller   |       | Service  |       |    DAO   |       |----|
+'---------------'       '----------'       '----------'       '----'
+
+
+<< SPRING BOOT REST SETUP SAMPLE DATA >>
+Setup Database Table
+employee.sql
+1. File: employee.sql
+2. Create a new database table: employee
+3. Load table with sample data
+
+.------------------------.
+| employee             V |
+|------------------------|
+| id INT(11)             |
+| first_name VARCHAR(45) |
+| last_name  VARCHAR(45) |
+| email VARCHAR(45)      |
+|------------------------|
+| Indexes              > |
+'------------------------'
+
+Download the SQL script
+
+Spring Boot Rest Create Project
+Go to start.spring.io
+
+Dependencies : 
+1. Spring Web (WEB)
+2. Spring Data JPA (SQL)
+3. Spring Boot DevTools (DEVELOPER TOOLS)
+4. MySQL Driver (SQL)
+
+
+<< SPRING BOOT REST DAO >>
+Create JPA DAO in Spring Boot
+                                          .--------------.
+.---------------.       .----------.      | .----------. |      .----.
+| Employee REST | <---> | Employee | <--->| | Employee | |<---> |----|
+|  Controller   |       | Service  |      | |    DAO   | |      |----|
+'---------------'       '----------'      | '----------' |      '----'
+                                          '-JPA--Now use Standard JPA API
+
+Let's build a DAO layer for this - Using Standard JPA API
+3. Get list of employees
+4. Get single employees
+5. Add a new employee
+6. Update an existing employee
+7. Delete an existing employee
+
+DAO Impl
+---------------------------------
+@Repository
+public class EmployeeDAOJpaImpl implements EmployeeDAO {
+                                           ^^^^^^^^^^^
+                                            '-- Same interface for consistent API
+
+  private EntityManger entityManager;
+
+  @Autowired
+  public EmployeeDAOJpaImpl (EntityManager theEntityManager) {
+    entityManager = theEntityManager;
+  }
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   '-- Automatically created by Spring Boot, Consturctor injection
+
+  ...
+}
+---------------------------------
+
+Get a list of employees 
+
+---------------------------------
+@Override
+public List<Employee> findAll() {
+
+  // create a query
+  TypeQuery<Employee> theQuery =
+	entityManager.createQuery("from Employee", Employee.class);
+
+  // execute query and get result list
+  List<Employee> employee = theQuery.getResultList();
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   '-- Using Standard JPA API
+
+  // return the results
+  return employees;
+}
+---------------------------------
+
+Development Process
+1. Update db configs in application.properties
+2. Create Employee entity
+3. Create DAO interface
+4. Create DAO implementation
+5. Create REST controller to use DAO
+
+
+<< SPRING BOOT DEFINE SERVICE LAYER >>
+Define Services with @Service
+
+Refactor: Add a Service Layer
+
+                       .--------------.
+.---------------.      | .----------. |      .----------.       .----.
+| Employee REST | <--->| | Employee | |<---> | Employee | <---> |----|
+|  Controller   |      | | Service  | |      |    DAO   |       |----|
+'---------------'      | '----------' |      '----------'       '----'
+                       '--------------'
+
+Purpose of Service Layer
+ - Service Facade design pattern
+ - Inermediate layer for custom business logic
+ - Integrate data from multiple sources (DAO/repositories)
+
+Integrate Multiple Data Sources
+
+.------------.       .----------.
+|  Employee  |       | Employee | <---> Employee DAO <---> Database A
+|    REST    | <---> |  Service | <---> Skill DAO    <---> Database B
+| Controller |       |          | <---> Payroll DAO  <---> Database C
+'------------'       '----------'
+Provide controller with a single view of the data that
+we integrated from multiple backend datasources
+
+Specialized Annotaiton for Services
+ - Spring provides the @Service annotation
+
+ @Component
+ ^
+ |-- @RestController 
+ |-- @Repository
+ '-- @Service
+
+ - @Service applied to Service implementations
+ - Spring will automatically register the Service implementation
+   - thanks to the component-scanning
+
+Employee Service
+1. Define Service interface
+
+---------------------------------
+public interface EmployeeService {
+
+  List<Employee> findAll();
+
+}
+---------------------------------
+
+2. Define Service implementation
+   - inject the EmployeeDAO
+@Service - enables component scanning
+
+---------------------------------
+@Service
+public class EmployeeServiceImpl implements EmployeeService {
+
+  // inject EmployeeDAO ...
+
+  @Override
+  public List<Employee> findAll() {
+    return employeeDAO.findAll();
+  }
+}
+---------------------------------
+
+
+<< SPRING BOOT DAO: ADD, UPDATE, DELETE >>
+DAO: Find, Add, Update and Delete
+
+Service Layer - Best Practice
+ - Best practice is to apply transactional boundaries at the service layer
+ - It is the service layer's responsibility to manage transaction boundaries
+ - For implementation code
+   - Apply @Transactional on service methods
+   - Remove @Transactional on DAO methods if they already exist
+
+Development Process
+1. Set up Database Dev Environment
+2. Create Spring Boot project using Spring Initializr
+3. Get list of employees
+4. Get single employee by ID
+5. Add a new employee
+6. Update an existing employee
+7. Delete an existing employee
+
+We'll focus on the DAO methods here 4, 5, 6, and 7
+
+DAO: Get a single employee
+---------------------------------
+@Overrride
+public Employee findById(int theId) {
+
+  // get employee
+  Employee theEmployee = entityManager.find(Employee.class, theId);
+
+  // return employee
+  return theEmployee;
+}
+---------------------------------
+
+DAO: Add or Update employee
+---------------------------------
+@Override
+public Employee save(Employee theEmployee) {
+
+  // save or update the employee
+  Employee dbEmployee = entityManager.merge(theEmployee)
+                                      ^^^^^
+                                       '-- if id == 0, then save/insert, else update
+  // reutrn dbEmployee
+  return dbEmployee;
+         ^^^^^^^^^^
+          '-- Return dbEmployee, It has updated id from the database (in this case of insert)
+}
+---------------------------------
+Note: We don't use @Transactional at DAO layer, it will be handled at Service layer
+
+DAO: Delete an existing employee
+---------------------------------
+@Override
+public void deleteById(int theId) {
+
+  // find the employee by id
+  Employee theEmployee = entityManager.find(Employee.class, theId);
+
+  // delete the employee
+  entityManager.remove(theEmployee);
+}
+---------------------------------
+Note: We don't use @Transactional at DAO layer, it will be handled at Service layer
+
+.---------------.       .----------.       .----------.       .----.
+| Employee REST | <---> | Employee | <---> | Employee | <---> |----|
+|  Controller   |       | Service  |       |    DAO   |       |----|
+'---------------'       '----------'       '----------'       '----'
+
+Real-Time Project
+.-------------.-----------------------------.-----------------------------.
+| HTTP Method |           Endpoint          |        CRUD Action          |
+|-------------+-----------------------------+-----------------------------|
+|    POST     | /api/employees              | Create a new employee       |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees              | Read a list of employees    |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees/{employeeId} | Read a single of employee   |
+|-------------|-----------------------------|-----------------------------|
+|     PUT     | /api/employees              | Update an existing employee |
+|-------------|-----------------------------|-----------------------------|
+|   DELETE    | /api/employees/{employeeId} | Delete an existing employee |
+'-------------'-----------------------------'-----------------------------'
+
+Read a Single Employee
+
+.--------.                                    .------------.
+|        |  GET  /api/employees/{employeeId}  |  Employee  |
+|  REST  | ---------------------------------> |    REST    |
+| Client | <--------------------------------- | Controller |
+|        |                                    |            |
+'--------'                                    '------------'
+
+JSON data return from the Employee REST Controller                  
+-------------------------------
+{
+  "id": 1,
+  "firstName": "David",
+  "lastName": "Adams",
+  "email": "david@luv2code.com"
+}
+------------------------------
+
+Create a New Employee
+
+.--------.                            .------------.
+|        |  POST  /api/employees/     |  Employee  |
+|  REST  | -------------------------> |    REST    |
+| Client | <------------------------- | Controller |
+|        |                            |            |
+'--------'                            '------------'
+
+Input JSON data
+------------------------------
+{
+  "firstName": "Juan",
+  "lastName": "Perez",
+  "email": "juan.perez@luv2code.com"
+}
+------------------------------
+Since new employee, we are not passing id / primary key
+
+Return JSON data
+------------------------------
+{
+  "id": 7,
+  "firstName": "Juan",
+  "lastName": "Perez",
+  "email": "juan.perez@luv2code.com"
+}
+------------------------------
+
+Sending JSON to Spring REST Controllers
+ - When seding JSON data to Spring REST Controllers
+ - For controller to process JSON data, need to set a HTTP request header
+   - Content-type: application/json
+ - Need to configure REST client to send the correct HTTP request header
+
+
+<< SPRING BOOT REST: UPDATE EMPLOYEE >>
+Update Employee
+
+.--------.                            .------------.
+|        |   PUT  /api/employees/     |  Employee  |
+|  REST  | -------------------------> |    REST    |
+| Client | <------------------------- | Controller |
+|        |                            |            |
+'--------'                            '------------'
+
+Input JSON data
+ID of employee to update with updated info
+------------------------------
+{
+  "id": 1,
+  "firstName": "Denial",
+  "lastName": "Vegas",
+  "email": "daniel.vega@luv2code.com"
+}
+------------------------------
+
+Reponse contains update info(echoed)
+------------------------------
+{
+  "id": 1,
+  "firstName": "Denial",
+  "lastName": "Vegas",
+  "email": "daniel.vega@luv2code.com"
+}
+------------------------------
+
+
+Delete Employee
+
+.--------.                                        .------------.
+|        |  DELETE  /api/employees/{employeeId}   |  Employee  |
+|  REST  | -------------------------------------> |    REST    |
+| Client | <------------------------------------- | Controller |
+|        |   Deleted employee id - {employeeId}   |            |
+'--------'                                        '------------'
+
+
+<< SPRING BOOT REST: PATCH >>
+Rest Controller Methods
+Partial Updates - Patch
+
+Common Pitfall - Partial Update Employee
+
+.--------.                            .------------.
+|        |   PATCH  /api/employees/   |  Employee  |
+|  REST  | -------------------------> |    REST    |
+| Client | <------------------------- | Controller |
+|        |                            |            |
+'--------'                            '------------'
+
+Input JSON data
+Parial update ... only the email address
+------------------------------
+{
+  "id": 5,
+  "email": "vega.juan@luv2code.com"
+}
+------------------------------
+
+Reponse contains update info(echoed)
+------------------------------
+{
+  "id": 5,
+  "firstName": null,
+               ^^^^
+  "lastName": null,
+              ^^^^
+  "email": "vega.juan@luv2code.com"
+}
+------------------------------
+Notice how the other fields are null
+
+Patial Updates - Patch
+ - For patial updates, need to use HTTP PATCH
+
+ - Comparison
+   - PUT: Replace the entire resource
+   - PATCH: Modifies only specified parts of resource
+
+ - Benefits of PATCH
+   - Efficiency: Reducing bandwidth by sending only partial changes
+   - Flexibility: Allows multiple partial updates in a single request
+
+PATCH - Partial Update Employee
+
+                                  .-- REST API convention is to pass the id as a path variable
+.--------.                        V   .------------.
+|        |  PATCH  /api/employees/5   |  Employee  |
+|  REST  | -------------------------> |    REST    |
+| Client | <------------------------- | Controller |
+|        |                            |            |
+'--------'                            '------------'
+
+Input JSON data
+Parial update ... only the email address
+------------------------------
+{
+  "email": "vega.juan@luv2code.com"
+}
+------------------------------
+
+Reponse contains update info(echoed)
+------------------------------
+{
+  "id": 5,
+  "firstName": "Juan",
+  "lastName": "Vega",
+  "email": "vega.juan@luv2code.com"
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+}
+------------------------------
+Notice how patial updates are applied correctly
+
+
+PATCH - Patial Update on multiple fields
+
+                                  .-- REST API convention is to pass the id as a path variable
+.--------.                        V   .------------.
+|        |  PATCH  /api/employees/5   |  Employee  |
+|  REST  | -------------------------> |    REST    |
+| Client | <------------------------- | Controller |
+|        |                            |            |
+'--------'                            '------------'
+
+Input JSON data
+Parial update ... only the email address
+------------------------------
+{
+  "firsName": "Daniel",
+  "email": "vega.juan@luv2code.com"
+}
+------------------------------
+
+Reponse contains update info(echoed)
+------------------------------
+{
+  "id": 5,
+  "firstName": "Daniel",
+               ^^^^^^^^
+  "lastName": "Vega",
+  "email": "vega.juan@luv2code.com"
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+}
+------------------------------
+Notice how patial updates are applied correctly
+
+PATCH - Development Process
+1. Inject helper class: ObjectMapper
+ - ObjectMapper is a helper class in the Jackson library for JSON processing
+
+ - ObjectMapper provides following support
+   - Converts Java objects to JSON and vice-versa
+   - Allows merging of JSON nodes
+   - Provides type safety for conversions: Java <-> JSON
+
+ - The ObjectMapper is preconfigured by Spring Boot
+
+------------------------------
+import com.fasterxml.jackson.databind.ObjectMapper;
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-- Helper class from Jackson library
+
+@RestController
+@RequestMapping("/api")
+public class EmployeeRestController {
+
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  public EmployeeRestController(EmployeeService theEmployeeService, ObjectMapper theObjectMapper) {
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                ObjectMapper is auto-configured by Spring Boot ------'
+                for JSON processing
+
+    employeeService = theEmployeeService;
+    objectMapper = theObjectMapper;
+  }
+  ...
+}
+------------------------------
+
+2. Add support for @PatchMapping request method
+
+------------------------------
+@PatchMapping("/employee/{employeeId}")
+public Employee patchEmployee(
+	@PathVariable int employeeId, @RequestBody Map<String, Object> patchPayload) {
+                                                   ^^^^^^^^^^^^^^^^^^^
+             JSON data is passed in as a Map of key - value pairs --'
+
+  Employee tempEmployee = employeeService.findById(employeeId);
+
+  // throw exception if null
+  if (tempEmloyee == null) {
+    throw new RuntimeException("Employee id not found - " + employeeId);
+  }
+
+  // throw exception if request body updates contains id
+  if (patchPayload.containsKey("id")) {
+    throw new RuntimeException("Employee id not allowed in request body - " + employeeId);
+  }
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   '-- The "id" field is not allowed in the payload, we will not change primary key
+
+  Employee patchedEmployee = apply(patchPayload, tempEmployee);
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              '-- Apply the partial patch updates, Method defined in next step ...
+
+  Employee dbEmployee = employeeService.save(patchedEmployee);
+
+  return dbEmployee;
+}
+------------------------------
+
+
+3. Apply patch payload to employee
+
+Convert data to JSON object nodes
+Merge/apply the patch
+Convert JSON object node back to Employee object
+
+------------------------------
+Private Employee apply(Map<String, Object> patchPayload, Employee temppEmployee) {
+
+  // Convert employee object to a JSON object node
+  ObjectNode employeeNode = objectMapper.convertValue(tempEmployee, ObjectNode.class);
+
+  // Convert the patchPayload map to a JSON Object node
+  ObjectNode patchNode = objectMapper.convertValue(patchPayload, ObjectNode.class);
+
+  // Merge the patch updates into the employee node
+  employeeNode.setAll(patchNode);
+
+  return objectMapper.convertValue(employeeNode, Employee.class);
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          '-- Convert JSON object node back to Employee object
+}
+------------------------------
+
+PATCH
+ - The approach shown in the previous covers the majority of use cases for partial updates
+
+ - However, if you have complex use cases
+   - Deeply nested JSON entities
+   - Add, move, remove, copy fields
+   - Move / manipulate array elements
+   - Complex transformations / data enrishment
+ - RFC 6902 - JSON Patch - https://www.rfc-editor.org/rfc/rfc6902.html
+ - RFC 7386 - JSON Merge Patch - https://www.rfc-editor.org/rfc/rfc7386.html
+ - json-patch project - https://github.com/java-tools/json-patch
+
+
+<< SPRING BOOT REST: SPRING DATA JPA >>
+Spring Data JPA in Spring Boot
+
+Application Architecture
+                                          .--------------.
+.---------------.       .----------.      | .----------. |      .----.
+| Employee REST | <---> | Employee | <--->| | Employee | |<---> |----|
+|  Controller   |       | Service  |      | |    DAO   | |      |----|
+'---------------'       '----------'      | '----------' |      '----'
+                                          '-JPA----------'
+                                            '-- Previously used JPA API
+Previously we used JPA API,
+We will shift over and make use of Spring Data JPA for our backend DAO
+                                             
+The Problem
+ - We saw how to create a DAO for Employee
+ - What if we need to create a DAO for another entity?
+   - Customer, Student, Product, Book ...
+ - Do we have to repeat all of the same code again???
+
+Creating DAO
+ - You may have noticed a pattern with creating DAOs
+
+------------------------------
+@Override
+public Employee findById(int theId) {
+       ^^^^^^^^          ^^^^^^^^^
+
+  // get data
+  Employee theData = entityManager.find(Employee.class, theId);
+  ^^^^^^^^                              ^^^^^^^^        ^^^^^
+                                         '-- Entity type '-- Primary key
+  // return data
+  return theData;
+}
+------------------------------
+
+ - Most of the code is the same
+ - Only diference is the entity type and primary key
+
+My wish
+ - I wish we could tell Spring:
+   Create a DAO for me
+   Plug in my entity type and primary key
+   Give me all of the basic CRUD features for free
+
+My Wish Diagram
+   .-------------.  .----------------------,
+.--| Entity: ??? |--| Primary key: Integer |--.
+|  '-------------'  '----------------------'  |
+|           findAll()            <= CRUD      |
+|           findById(...)           methods   |
+|           save(...)                         |
+|           deleteById(...)                   | 
+|           ... others ...                    |
+'---------------------------------------------'
+
+Entity type might be Employee, Customer, Product
+
+Spring Data JPA - Solution
+ - Spring Data JPA is the solution!!!!
+   https://spring.io/projects/spring-data-jpa
+
+ - Create a DAO and just plug in your entity type and primary key
+ - Spring will give you a CRUD implementation for FREE ... like MAGIC!!
+   - Helps to minimize boiler-plate DAO code
+Note: More than 70% reduction in code ... depending on use case
+
+JpaRepository
+ - Spring Data JPA provides the interface: JpaRepository
+ - Expose methods (some by inheritance from parents)
+
+Development Process
+1. Extend JpaRepository interface
+
+------------------------------
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+                                                          ^^^^^^^^  ^^^^^^^
+                                                           |         '-- Primary key
+                                                           '-- Entity type
+  // that's it ... no need to write any code!!
+
+}
+------------------------------
+
+We will get all of these methods for free
+   .-------------.  .----------------------,
+.--| Entity: ??? |--| Primary key: Integer |--.
+|  '-------------'  '----------------------'  |
+|           findAll()            <= CRUD      |
+|           findById(...)           methods   |
+|           save(...)                         |
+|           deleteById(...)                   | 
+|           ... others ...                    |
+'---------------------------------------------'
+
+2. Use your Repository in your app
+
+------------------------------
+@Service
+public class EmployeeServiceImpl implements EmployeeService {
+
+  private EmployeeRepository employeeRepository;
+
+  @Autowired
+  public EmployeeServiceImpl(EmployeeRepository theEmployeeRepository) {
+    employeeRepository = theEmployeeRepository;
+  }
+
+  @Override
+  public List<Employee> findAll() {
+    return employeeRepository.findAll();
+                              ^^^^^^^^^
+                               '-- Magic method that is available via repository
+  }
+}
+------------------------------
+                                          .--------------.
+.---------------.       .----------.      | .----------. |      .----.
+| Employee REST | <---> | Employee | <--->| | Employee | |<---> |----|
+|  Controller   |       | Service  |      | |    DAO   | |      |----|
+'---------------'       '----------'      | '---Spring data JPA '----'
+                                          '--------------'
+
+JpaRepository Docs
+ - Full list of methods available ... see JavaDoc for JpaRepository
+   www.lub2code.com/jpa-repository-javadoc
+
+Minimized Boilerplate Code
+Before Spring Data JPA                    After Spring Data JPA
+ - 2 Files                                 - 1 File
+ - 30+ lines of code                       - 3 linse of code!
+
+------------------------------            ------------------------------
+public interface EmployeeDAO {            public interface EmployeeRepository extends Jpa... {
+  
+  public List<Employee> findAll();        }
+
+  public Employee findById(int theId);    ------------------------------
+
+  public void save(Employee theEmployee);
+
+  public void deleteById(int theId);
+
+}
+------------------------------
+
+------------------------------
+@Repository
+public class EmployeeDAOJpaImpl implements EmployeeDAO {
+
+  ...
+
+}
+------------------------------
+
+Advanced Features
+ - Advanced features available for
+   - Extending and adding custom queries with JPQL
+   - Query Domain Specific Language (Query DSL)
+   - Defining custom methods (low-level coding)
+
+   www.luv2code.com/spring-data-jpa-defining-custom-queries
+
+
+<< SPRING BOOT REST: SPRING DATA REST >>
+Spring Data REST in Spring Boot
+
+Spring Data JPA
+ - Earlier, we saw the magic of Spring Data JPA
+ - This helped to eliminate boilerplate code
+
+Can this apply to REST APIs?
+
+The problem
+ - We saw how to create a REST API for Employee
+ - Need to create REST API for another entity?
+   - Customer, Student, Product, Book ...
+ - Do we have to repeat all of the same code again???
+
+My Wish
+ - I wish we could tell Spring:
+   Create a REST API for me
+   Use my existing JpaRepository (entity, primary key)
+   Give me all of the basic REST API CRUD features for free
+
+Spring Data REST - Solution
+ - Spring Data REST is the solution!!!
+   https://spring.io/projects/spring-data-rest
+
+ - Leverage your existing JpaRepository
+ - Spring will give you a REST CRUD implementation for FREE ... like MAGIC!!
+   - Helps to minimize boiler-plate REST code!!!
+   - No new coding required!!!
+
+REST API
+ - Spring Data REST will expose these endpoints for free!
+
+.-------------.-----------------------------.-----------------------------.
+| HTTP Method |           Endpoint          |        CRUD Action          |
+|-------------+-----------------------------+-----------------------------|
+|    POST     | /api/employees              | Create a new employee       |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees              | Read a list of employees    |
+|-------------|-----------------------------|-----------------------------|
+|     GET     | /api/employees/{employeeId} | Read a single of employee   |
+|-------------|-----------------------------|-----------------------------|
+|     PUT     | /api/employees              | Update an existing employee |
+|-------------|-----------------------------|-----------------------------|
+|   DELETE    | /api/employees/{employeeId} | Delete an existing employee |
+'-------------'-----------------------------'-----------------------------'
+
+Spring Data REST - How Does It Work?
+ - Spring Data REST will scan your project for JpaRepository
+ - Expose REST APIs for each entity type for your JpaRepository
+
+REST Enpoints
+ - By default, Spring Data REST will create endpoints based on entity type
+ - Simple pluralized form
+   - First character of Entity type is lowercase
+   - Then just adds an "s" to the entity
+
+------------------------------
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+                                                          ^^^^^^^^
+                                        /employees --------'
+}
+------------------------------
+
+Development Process
+1. Add Spring Data REST to you Maven POM file
+
+------------------------------
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-rest</artifacId>
+</dependency>
+------------------------------
+
+In A Nutshell
+For Spring Data REST, you only need 3 items
+1. Your entity: Employee
+2. JpaRepository: EmployeeRepository extends JpaRepository
+3. Maven POM dependency for: spring-boot-starter-data-rest
+
+Application Architecture
+
+Before
+                                          .--------------.
+.---------------.       .----------.      | .----------. |      .----.
+| Employee REST | <---> | Employee | <--->| | Employee | |<---> |----|
+|  Controller   |       | Service  |      | |    DAO   | |      |----|
+'---------------'       '----------'      | '---Spring data JPA '----'
+                                          '--------------'
+
+After
+                           .----------------.
+.------------------.       | .------------. |          .----.
+| Spring Data REST | <---> | |  Employee  | | <------> |----|
+|   /employees     |       | | Repository | |          |----|
+'------------------'       | '----Spring Data JPA      '----'
+                           '----------------'
+
+Minimized Boilerplate Code
+Before Spring Data REST          After Spring Data REST
+ - 3 files                        - just Add dependency for spring-boot-starter-data-rest
+ - 100+ lines of code
+
+HATEOAS
+ - Spring Data REST endpoints are HATEOAS compliant
+   - HATEOAS: Hypermedia as the Engine of Application State
+
+ - Hypermedia-driven sites provide information to access REST interfaces
+   - Think of it as meta-data for REST data
+   https://spring.io/projects/spring-hateoas
+
+ - HATEOAS uses Hypertext Application Language (HAL) data format
+
+Advanced Features
+ - Spring Data REST advanced features
+   - Pagination, sorting and searching
+   - Extending and adding custom queries with JPQL
+   - Query Domain Specific Language (Query DSL)
+   https://spring.io/projects/spring-data-rest
+
+
+<< SPRING BOOT REST: SPRING DATA REST CONFIGS AND SORTING >>
+Spring Data REST
+Configuration, Pagination and Sorting
+
+REST Endpoints
+ - By default, Spring Data REST will create endpoints based on entity type
+ - Simple pluralized form
+   - First character of Entity type is lowercase
+   - Then just add an "s" to the entity
+
+Pluralized Form
+ - Spring Data REST pluralized form is VERY simple
+   - Just adds an "s" to the entity
+
+ - The English language is VERY complex!
+   - Spring Data REST does NOT handle
+
+Singular: Goose, Person, Syllabus, ...
+Plural  : Geese, People, Syllabi,  ...
+
+Problem
+ - Spring Data REST does not handle complex pluralized forms
+   - In this case, you need to specify plural name
+
+ - What is we want to expose a different resource name?
+   - Instead of /employees ... use /members
+
+Solution
+ - Specify plural name / path with an annotation
+
+------------------------------
+@RepositoryRestResource(path="members")
+                              ^^^^^^^
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+
+}
+------------------------------
+http://localhost:8080/members
+
+Pagination
+ - By default, Spring Data REST will return the first 20 elements
+   - Page size = 20
+
+ - You can navigate to the different pages of data using query param
+
+   Pages are zero-based
+   http://localhost:8080/employees?page=0
+   http://localhost:8080/employees?page=1
+
+Spring Data REST Configuration
+ - Following properties available: application.properties
+
+.------------------------------------.-----------------------------------------------.
+|                 Name               |                   Description                 |
+|------------------------------------|-----------------------------------------------|
+| spring.data.rest.base-path         | Base path used to expose repository resources |
+|------------------------------------|-----------------------------------------------|
+| spring.data.rest.default-page-size | Default size of pages                         |
+|------------------------------------|-----------------------------------------------|
+| spring.data.rest.max-page-size     | Maximum size of pages                         |
+|------------------------------------|-----------------------------------------------|
+| ...                                | ...                                           |
+'------------------------------------'-----------------------------------------------'
+More properties available
+www.luv2code.com/spring-boot-props
+
+Simple Configuration
+
+File: application.properties
+------------------------------
+spring.data.rest.base-path=/magic-api
+spring.data.rest.default-page-size=50  <== Returns 50 elements per page
+------------------------------
+
+Sorting
+ - You can sort by the property names of your entity
+   - in our Employee example, we have: firstName, lastName, and email
+
+ - Sort by last name (ascending is default)
+   http://localhost:8080/employees?sort=lastname
+
+ - Sort by first name, descending
+   http://localhost:8080/employees?sort=firstName,desc
+
+ - Sort by last name, then first name, ascending
+   http://localhost:8080/employees?sort=lastName,firstName,asc
+
+
+<< SPRING BOOT REST: OPENAPI AND SWAGGER >>
+Documenting REST APIs with OpenAPI and Swagger
+
+The Problem
+ - There is a REST API out there ... but we don't have any documentation
+ - We ahve to review the source code to find endpoints: @GetMapping etc
+ - Then use Postman or curl to call the REST API
+
+My Wish
+ - I wish we could tell our app:
+   At run-time, generate API documentation
+   Inspect API endpoints base on
+   Spring Configs, annotations etc
+   Provide a web UI for accessing endpoints
+   No need for Postman
+
+Springdoc To The Rescue (www.springdoc.org)
+ - Springdoc is separate open-source project
+ - Generates API documentation
+ - Inspects API endpoints based on Spring Configs, annotations etc
+ - Provides a web UI for accessing endpoints
+   - No need for Postman
+
+Springdoc - Swagger Web UI
+ - Springdoc provides a Swagger web UI for accessing endpoints
+(www.springdoc.org)
+
+Documenting REST APIs
+ - OpenAPI is an industry standard format for documenting APIs
+   - www.openapis.org
+
+ - Swagger UI is a browser-based UI for interacting with your API
+   - Powered by Springddoc-OpenAPI
+
+Development Process
+1. Add Maven dependency for Springdoc
+
+------------------------------
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>x.y.z</version>
+</dependency>
+------------------------------
+
+2. Access Swagger UI
+ - By default, Swagger UI is available at:
+   - http://localhost:8080/swagger-ui/index.html
+
+ - Can configure a custom path in application.properties
+
+   # configure custom path
+   springdoc.swagger-ui.path=/my-fun-ui.html
+
+ - Access Swagger UI at
+   - http://localhost:8080/my-fun-ui.html
+
+3. Retrieve API endpoints as JSON or YAML
+ - Docs for API endpoints avaiable as JSON or YAML
+ - Useful for integration with other development tools
+ - Client SDK generation, API mocking, contract testing, etc
+ - JSON or YAML is language independent
+ - Can be processed by Python, Javascript, Go, C# etc
+
+ - By default, JSON docs acailable here
+   - http://localhost:8080/v3/api-docs
+
+ - YAML docs available here
+   - http://localhost:8080/v3/api-docs.yaml
+
+ - Web browser will download the YAML file
+ - You can view it with any text editor
+
+Configure Custom Path for API docs
+ - Can configure a custom path in application.propeties
+
+  # Configure custom path
+  springdoc.api-docs.path=/my-api-docs
+
+ - Access API Docs at
+   - http://localhost:8080/my-api-docs  <== JSON
+   - http://localhost:8080/my-api-docs.yaml
+
