@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./index-docker.css">
+    <title>Male's Docker & Kubernetes notes</title>
+  </head>
+  <body>
+    <main>
+      <div class="header">
+
+        <!-- Navigation Bar -->
+        <nav class="side-nav">
+          <div>
+            <div class="MyNote">
+              <img class="logo-img" src="./icons/Docker.svg">
+              <h3>My Note</h3>
+            </div>
+          </div>
+          <ul class="nav-links">
+            <li><a href="#"><p>Getting Started</p></a></li>
+            <li><a href="#"><p>Images & Containers</p></a></li>
+            <li><a href="#"><p>Managing Data with Volumes</p></a></li>
+            <li><a href="#"><p>Networking</p></a></li>
+            <li><a href="#"><p>Multi-Container App</p></a></li>
+            <li><a href="#"><p>Docker Compose</p></a></li>
+            <li><a href="#"><p>Utility Containers</p></a></li>
+            <li><a href="#"><p>Deploying Docker Container</p></a></li>
+            <li><a href="#"><p>Kubernetes</p></a></li>
+            <li><a href="#"><p>Core Concepts</p></a></li>
+            <li><a href="#"><p>Managing Data & Volumes</p></a></li>
+            <li><a href="#"><p>Kubernetes Networking</p></a></li>
+            <li><a href="#"><p>Deployment (AWS EKS)</p></a></li>
+            <div class="active"></div>
+          </ul>
+        </nav>
+        
+        <!-- Main Section -->
+        <div class="main">
+          <h1>Welcome to Male's Docker & Kubernetes Note! </h1>
+          <div class="header-line"></div>
+          <div class="date-author">
+            <p>date: 14/10/2025</p>
+            <p>Author: Thanapong Yooyen</p>
+          </div>
+          <h2>I created this blog to review and share everything I've learned from 
+            Maximilian Schwarzmuller's Docker and Kubernetes course on Udemy.
+          </h2>
+          <h3>What Is Docker?</h3>
+          <p>
+            Docker is a container technology: A toll for creating and managing containers
+          </p>
+          <pre>
+.------------------------------------.        .---------------------------------.
+|              Container             | <----> |    The same container always    |
+'------------------------------------'        |      yields the exact same      |
+.------------------------------------.        |    application and execution    |
+| A standardized unit of software    |        |   behavior! No mater where or   |
+| A package of code and dependencies |        |  by whom it might be executed   |
+| to run that code (e..g. NodeJS     |        '---------------------------------'
+| code + the NodeJS runtime)         |        .---------------------------------.
+|                                    |        | Support for Containers is built |
+|                                    |        | into modern operating systems!  |
+|                                    |        '---------------------------------'
+|                                    |        .---------------------------------.
+|                                    |        | Docker simplifies the creation  |
+|                                    |        |     and management of such      |
+|                                    |        |            containers           |
+'------------------------------------'        '---------------------------------'
+          </pre>
+          <h3>Why would we want independent, standardized "application packages"?</h3>
+          <pre>
+.---------------------------. .-----------------------------. .----------------------------.
+|  Different Development &  | |    Different Development    | | Clashing Tools / Versions  |
+|  Production Environments  | |    Environments Within a    | | Between Different Projects |
+|                           | |       Team / Company        | |                            |
+'---------------------------' '-----------------------------' '----------------------------'                       
+.---------------------------. .-----------------------------. .----------------------------.
+| We want to build and test | | Every team member           | | When switching between     |
+| in exactly (!) the same   | | should have the exactly (!) | | projects, tools used in    |
+| environment as we later   | | same environment when       | | project A should not clash |
+| run our app in            | | working on the same         | | with tools used in project |
+|                           | | project                     | | B                          |
+'---------------------------' '-----------------------------' '----------------------------'
+          </pre>
+          <h3>The Problems</h3>
+          <p>Environment: The runtimes, languages, frameworks you need for development</p>
+          <pre>
+.---------------------------.  often not the same   .------------------------.
+|   Development Environment | <-------------------> | Production Environment |
+'---------------------------'                       '------------------------'
+.---------------------------.  often not the same   .-------------------------.
+|  Development Environment  | <-------------------> | Development Environment |
+|       for Employee A      |                       |     for Employee B      |
+'---------------------------'                       '-------------------------'
+.----------------------------.  often not the same   .----------------------------.
+| Tools & Libraries required | <-------------------> | Tools & Libraries required |
+|        for Project A       |                       |       for Project B        |
+'----------------------------'                       '----------------------------'
+          </pre>
+          <p>We want Reliability & Reproducible Environments</p>
+          <ul>
+            <li>We want to have the exact same environment for development and production -> This ensures that it works exactly as tested</li>
+            <li>It should be easy to share a common development environment / setup with (new) employee and colleagues</li>
+            <li>We don't want to uninstall and re-install local dependencies and runtimes all the time</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
