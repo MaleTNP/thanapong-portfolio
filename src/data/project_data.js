@@ -23,7 +23,9 @@ export const PROJECTDATA = [
       { icon: JavaScriptIcon, name: 'JavaScript' },
       { icon: HTML5Icon, name: 'HTML' },
       { icon: CSS3Icon, name: 'CSS' },
-    ]
+    ],
+    liveDemoIsActive: true,
+    gitHubIsActive: false,
   },
   {
     image: '',
@@ -36,6 +38,8 @@ export const PROJECTDATA = [
       { icon: JavaIcon, name: 'Java' },
       { icon: SpringBootIcon, name: 'SpringBoot' },
       { icon: HibernateIcon, name: 'Hibernate' },
-    ] 
+    ], 
+    liveDemoActive: true,
+    gitHubActive: false,
   },
 ]

@@ -1,5 +1,5 @@
 
-export default function ProjectCard({ image, title, description, tech }) {
+export default function ProjectCard({ image, title, description, tech, liveDemoIsActive, gitHubIsActive }) {
   return <>
     {/* Project Card */}
     <div className="bg-white rounded-2xl overflow-hidden">
@@ -26,8 +26,18 @@ export default function ProjectCard({ image, title, description, tech }) {
 
         {/* Project Link */}
         <div className="space-x-2 mt-4">
-          <a className="px-4 py-1 bg-aqua text-white rounded-lg">Live Demo</a>
-          <a className="px-4 py-1 bg-black hover:bg-gray-700 text-white rounded-lg">GitHub</a>
+          <a 
+            className={`px-4 py-1 bg-aqua hover:bg-aqua-dark text-white rounded-lg
+            ${liveDemoIsActive ? null : 'hidden'}`}
+          >
+            Live Demo
+          </a>
+          <a 
+            className={`px-4 py-1 bg-black hover:bg-gray-700 text-white rounded-lg
+            ${gitHubIsActive ? null : 'hidden'}`}
+          >
+            GitHub
+          </a>
         </div>
 
       </div>
@@ -35,7 +45,6 @@ export default function ProjectCard({ image, title, description, tech }) {
     </div>
   </>
 }
-
 
 function TechStackList({ icon, name }) {
   return <>

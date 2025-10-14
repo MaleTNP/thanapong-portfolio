@@ -2,6 +2,7 @@
 
 @theme {
   --color-aqua: #00CED1;
+  --color-aqua-dark: #00A0A3;
   --color-light-cyan: #00FFFF;
   --color-light-blue: #ADD8E6;
   /* --animate-fade-in: fade-in 1s;

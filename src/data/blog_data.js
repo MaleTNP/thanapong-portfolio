@@ -1,4 +1,3 @@
-import springBootImgs from '../assets/others/download.png';
 import springBootImg from '../assets/others/Spring-Boot-Male.png';
 
 export const BLOGCARD = [
@@ -13,5 +12,15 @@ export const BLOGCARD = [
       Hibernate/JPA ... all connected to a MySQL database\
       ',
       link: '/thanapong-portfolio/springboothome.html',
+  },
+  {
+    image: springBootImg,
+    date: 'Oct 14, 2025',
+    time: 'more than 1 hour read',
+    title: 'Learning Docker & Kubernetes',
+    description: 
+      'Learn what is Docker and Kubernetes, create and use Images & Containers with Docker\
+      Understand complex topics like managing and persisting data with Volumnes',
+    link: '/thanapong-portfolio/docker.html',
   },
 ] 
