@@ -4,7 +4,7 @@ import { PROJECTDATA } from '../data/project_data.js';
 export default function Projects() {
   return <>
     {/* Projects Global Container */}
-    <div className="py-20 px-6 bg-black">
+    <div id="projects" className="py-20 px-6 bg-black">
 
       {/* Projects Container */}
       <div className="flex flex-col jusitify-center items-center space-y-6">

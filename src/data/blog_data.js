@@ -1,4 +1,5 @@
 import springBootImg from '../assets/others/Spring-Boot-Male.png';
+import dockerImg from '../assets/others/Docker-Male.png';
 
 export const BLOGCARD = [
   {
@@ -14,7 +15,7 @@ export const BLOGCARD = [
       link: '/thanapong-portfolio/springboothome.html',
   },
   {
-    image: springBootImg,
+    image: dockerImg,
     date: 'Oct 14, 2025',
     time: 'more than 1 hour read',
     title: 'Learning Docker & Kubernetes',

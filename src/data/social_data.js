@@ -5,15 +5,18 @@ import GitHubIcon from '../assets/icons/GitHub.svg';
 export const SOCIALICON = [
   {
     image: LinkedInIcon,
-    name: 'LinkedIn'
+    name: 'LinkedIn',
+    link: 'https://www.linkedin.com/in/thanapong-yooyen-78631421b/',
   },
   {
     image: GmailIcon,
-    name: 'Gmail'
+    name: 'Gmail',
+    link: 'mailto:malethanapong@gmail.com',
   },
   {
     image: GitHubIcon,
-    name: 'GitHub'
+    name: 'GitHub',
+    link: 'https://github.com/MaleTNP',
   },
 ]
 
