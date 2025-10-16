@@ -1,0 +1,546 @@
+SECTION 5: REST API SECURITY
+
+<< SPRING BOOT REST API SECURITY >>
+Spring Boot REST API Security Overview
+
+You will learn how to ...
+ - Secure Spring Boot REST APIs
+ - Define users and role
+ - Protect URLs based on role
+ - Store users, passwords and roles in DB (plain-text -> encrypted)
+
+Practical Results
+ - Cover the most common Spring Security tasks that you will need on daily projects
+   http://www.luv2code.com/spring-security-reference-manual
+
+Spring Security Model
+ - Spring Security defines a framework for security
+ - Implemented using Servlet filters in the background
+ - Two methods of securing an app: declarative and programmatic
+
+Spring Security with Servlet Filters
+ - Servlet Filters are used to pre-process / post-process web requests
+ - Servlet Filters can route web requests based on security logic
+ - Spring provides a bulk of security functionality with servlet filters
+
+Spring Security Overview
+
+.---------.     .----------.
+|         |     |          |       .-----------.
+|         | ----|          |-----> | Protected |
+|         | <---|  Spring  |------ |    Web    |
+|   Web   |     | Security |       | Resource  |
+| Browser |     | Filters  |       '-----------'
+|         |     |          |       .---------------.      .-----------.
+|         |     |          | ----> |    my app     | ---> |   users   |
+|         |     |          | <---- |   security    | <--- | passwords |
+|         |     |          |       | configuration |      |   roles   |
+'---------'     '----------'       '---------------'      '-----------'
+
+Spring Security in Action
+
+.--------------.
+|    Spring    |
+|   Security   |
+|    Filters   |
+'--------------'
+     |
+     V
+.-----------------.                    .----------------.            .-------------. No  .---------------.
+| Is Web Resource |----Yes------------>|     Is user    |----Yes---->|   Is user   |---->| Access Denied |
+|  Protected?     |        ^           | authenticated? |            | authorized? |     '---------------'
+'-----------------'        |           '----------------'            '-------------'
+        |       .--------------------.           |                           |
+        |       |    Authenticate    |           |                           |
+        |       | user id & password |           No                          |
+        |       '--------------------'           |                          Yes
+        |                  ^                     V                           |
+        No                 |              .------------.                     |
+        |        .-------------------.    |  Send to   |                     |
+        |        |  Show Login Form  |<---| Login From |                     V
+        |        '-------------------'    '------------'             .---------------.
+        '----------------------------------------------------------->| Show Resource |
+                                                                     '---------------'
+Security Concepts
+ - Authentication
+   - Check user id and password with credentials stored in app / db
+
+ - Authorization
+   - Check to see if user has an authorized role
+
+Declarative Security
+ - Define application's securit constraints in configuration
+   - All Java config: @Configuration
+
+ - Provides separation of concerns between application code and security
+
+Programmatic Security
+ - Spring Security provides an API for custom application coding
+ - Provides greater customization for specific app requirements
+
+Enabling Spring Security
+1. Edit pom.xml and add spring-boot-starter-security
+
+-----------------------------
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+-----------------------------
+
+2. This will automagically secure all endpoints for application
+
+Secured Endpoints
+ - Now when you access your application
+ - Spring Security will prompt for login
+
+.-------------------.
+| Please sign in    |  Default user name: user
+| .---------------. |
+| | Username      | |  Check console logs for password
+| '---------------' |
+| .---------------. |  console:
+| | Password      | |  | Using generated security password: 78fd68a-c190-421d-... |
+| '---------------' |
+|                   |
+| .---------------. |
+| |    Sign in    | |
+| '---------------' |
+'-------------------'
+
+Spring Security Configuration
+ - You can override default user name and generated password
+
+File: src/main/resources/application.properties
+-----------------------------
+spring.security.user.name=scott
+spring.security.user.password=tiger
+-----------------------------
+
+Authentication and Authorization
+ - In-memory
+ - JDBC
+ - LDAP
+ - Custom / Pluggable
+ - others...
+We will cover password storage in DB as plain-text AND encrypted
+
+
+<< SPRING BOOT REST API SECURITY - BASIC CONFIGURATION >>
+Configuration Basic Security
+
+Our Users
+.---------.----------.--------------------------.
+| User ID | Password |           Roles          |
+|---------+----------+--------------------------|
+| john    | test123  | EMPLOYEE                 |
+|---------|----------|--------------------------|
+| mary    | test123  | EMPLOYEE, MANAGER        |
+|---------|----------|--------------------------|
+| susan   | test123  | EMPLOYEE, MANAGER, ADMIN |
+'---------'----------'--------------------------'
+
+Development Process
+1. Create Spring Security Configuration (@Configuration)
+
+File: DemoSecurityConfig.java
+-----------------------------
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+public class DemoSecurityConfig {
+
+  // add our security configuration here ...
+
+}
+-----------------------------
+
+2. Add users, passwords and roles
+
+File: DemoSecurityConfig.java
+-----------------------------
+@Configuration
+public class DemoSecurityConfig {
+
+  @Bean
+  public InMemoryUserDetailsManager userDetailsManager() {
+
+    UserDetails john = User.builder()
+		.username("john")
+		.password("{noop}test123")
+		.roles("EMPLOYEE")
+		.build();
+
+    UserDetails mary = User.builder()
+		.username("mary")
+		.password("{noop}test123")
+		.roles("EMPLOYEE", "MANAGER")
+		.build();
+
+    UserDetails susan = User.builder()
+		.username("susan")
+		.password("{noop}test123")
+		.roles("EMPLOYEE", "MANAGER", "ADMIN")
+		.build();
+
+    return new InMemoryUserDetailsManager(john, mary, susan);
+  }
+}
+-----------------------------
+
+Spring Security Password Storage
+ - In Spring Security, password are stored using a specific format
+
+   {id}encodedPassword
+
+.----------.--------------------------.
+|    ID    |       Description        |
+|----------+--------------------------|
+|   noop   | Plain text passwords     |
+|----------|--------------------------|
+|  bcrypt  | BCrypt password hashing  |
+|----------|--------------------------|
+|    ...   | ...                      |
+'----------'--------------------------'
+
+Password Example
+
+  {noop}test123
+   ^^^^ ^^^^^^^
+    '    '-- The password
+    '------- The encoding algorithm id
+             Let's Spring Security know the passwords are stored as plain text (noop)
+
+
+<< RESTRICT URLS BASED ON ROLES >>
+Restrict Access Based on Roles
+
+Our Example
+
+.-------------.-----------------------------.-----------------.----------.
+| HTTP Method |          Endpoint           |   CRUD Action   |   Role   |
+|-------------+-----------------------------+-----------------+----------|
+|     GET     | /api/employees              | Read all        | EMPLOYEE |
+|-------------|-----------------------------|-----------------|----------|
+|     GET     | /api/employees/{employeeId} | Read single     | EMPLOYEE |
+|-------------|-----------------------------|-----------------|----------|
+|     POST    | /api/employees              | Create          | MANAGER  |
+|-------------|-----------------------------|-----------------|----------|
+|     PUT     | /api/employees              | Update          | MANAGER  |
+|-------------|-----------------------------|-----------------|----------|
+|    DELETE   | /api/employees/{employeeId} | Delete employee | ADMIN    |
+'-------------'-----------------------------'-----------------'----------'
+
+Restricting Access to Roles
+ - General Systax
+-----------------------------
+                    .-- Restrict access to a given path "/api/employees"
+                   VVVVVVVVVVVVVVVVVVVV
+requestMatchers(<< add path to maatch on >>)
+	.hasRole(<< authorized roles >>)
+         ^^^^^^^    ^^^^^^^^^^^^^^^
+          '          '-- "ADMIN"
+          '-- Single role
+-----------------------------
+
+You may notice is that for a given path, 
+it changes depending on what type of HTTP method we're using
+-----------------------------
+                    .-- Specify HTTP method: GET, POST, PUT, DELETE ...
+                   VVVVVVVVVVVVVVVVVVVVVVVVVVV
+requestMatchers(<< add HTTP METHOD to match on >>, << add path ot match on >>)
+	.hasRole(<< authorized roles >>)
+-----------------------------
+
+For many roles
+-----------------------------
+requestMatchers(<< add HTTP METHOD to match on >>, << add path ot match on >>)
+	.hasAnyRole(<< list of authorized roles >>)
+         ^^^^^^^^^^    ^^^^^^^^^^^^^^^^^^^^^^^^
+          '-- Any role  '-- Comma-delimited list
+-----------------------------
+
+Authorize Requests for EMPLOYEE role
+requestMatchers(HttpMethod.GET, "/api/employees").hasRole("EMPLOYEE")
+requestMatchers(HttpMethod.GET, "/api/employees/**").hasRole("EMPLOYEE")
+
+Note: The ** systax: match on all sub-paths
+
+Authorize Requests for MANAGER role
+requestMatchers(HttpMethod.POST, "/api/employees").hasRole("MANAGER")
+requestMatchers(HttpMethod.PUT, "/api/employees").hasRole("MANAGER")
+
+Authorize Requests for ADMIN role
+requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
+
+Pull It Together
+-----------------------------
+@Bean
+public SecurityFilterChain fileterChain(HttpSecurity http) throws Exception {
+
+  http.authorizeHttpRequests(configurer ->
+	configurer
+		.requestMatchers(HttpMethod.GET, "/api/employees").hasRole("EMPLOYEE")
+		.requestMatchers(HttpMethod.GET, "/api/employees/**").hasRole("EMPLOYEE")
+		.requestMatchers(HttpMethod.POST, "/api/employees").hasRole("MANAGER")
+		.requestMatchers(HttpMethod.PUT, "/api/employees").hasRole("MANAGER")
+		.requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
+
+  // use HTTP Basic authentication
+  http.httpBasic(Customizer.withDefaults());
+
+  return http.build();
+}
+-----------------------------
+
+Cross-Site Request Forgery (CSRF)
+ - Spring Security can protect against CSRF attacks
+ - Embed additional authentication data / token into all HTML forms
+ - On subsequent requests, web app will verify token before processing
+ - Primary use case is traditional web application (HTML forms etc ...)
+
+When to use CSRF Protection?
+ - The Spring Security team recommends
+   - Use CSRF protection for any normal browser web requests
+   - Traditional web apps with HTML forms to add/modify data
+
+ - If you are building a REST API for non-browser clients
+   - you may want to disable CSRF protection
+
+ - In general, not required for stateless REST APIs
+   - That use POST, PUT, DELETE and/or PATCH
+
+Pull It Together
+-----------------------------
+@Bean
+public SecurityFilterChain fileterChain(HttpSecurity http) throws Exception {
+
+  http.authorizeHttpRequests(configurer ->
+	configurer
+		.requestMatchers(HttpMethod.GET, "/api/employees").hasRole("EMPLOYEE")
+		.requestMatchers(HttpMethod.GET, "/api/employees/**").hasRole("EMPLOYEE")
+		.requestMatchers(HttpMethod.POST, "/api/employees").hasRole("MANAGER")
+		.requestMatchers(HttpMethod.PUT, "/api/employees").hasRole("MANAGER")
+		.requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
+
+  // use HTTP Basic authentication
+  http.httpBasic(Customizer.withDefaults());
+
+  // disable Cross Site Request Forgery (CSRF)
+  http.csrf(csrf -> csrf.disable());
+
+  return http.build();
+}
+-----------------------------
+
+
+<< 403 ERROR WITH PUT REQUEST >>
+403 ERROR - PUT with Spring Data REST
+
+This is a non-issue if using code provided for this lecture @RestController
+
+When using Spring Data REST for PUT requests the ID is on the URL
+/api/employees/{employeeId}
+As a result, need to modify the security configuration
+
+DemoSecurityConfig.java
+
+Replace
+.requestMatchers(HttpMethod.PUT, "/api/employees").hasRole("Manager")
+
+With
+.requestMatchers(HttpMethod.PUT, "/api/employees/**").hasRole("Manager")
+                                                ^^^
+Note: Use of /**
+Because the ID is passed on the URL
+For PUT requests using Spring Data REST
+
+
+<< SPRING BOOT REST API SECURITY - PATCH >>
+Restrict Access Based on Roles
+Patch - Partial Updates
+
+Our Example
+
+.-------------.-----------------------------.-----------------.----------.
+| HTTP Method |          Endpoint           |   CRUD Action   |   Role   |
+|-------------+-----------------------------+-----------------+----------|
+|     GET     | /api/employees              | Read all        | EMPLOYEE |
+|-------------|-----------------------------|-----------------|----------|
+|     GET     | /api/employees/{employeeId} | Read single     | EMPLOYEE |
+|-------------|-----------------------------|-----------------|----------|
+|     POST    | /api/employees              | Create          | MANAGER  |
+|-------------|-----------------------------|-----------------|----------|
+|     PUT     | /api/employees              | Update          | MANAGER  |
+|-------------|-----------------------------|-----------------|----------|
+|    PATCH    | /api/employees/{employeeId} | Partial Update  | MANAGER  |
+|-------------|-----------------------------|-----------------|----------|
+|    DELETE   | /api/employees/{employeeId} | Delete employee | ADMIN    |
+'-------------'-----------------------------'-----------------'----------'
+
+requestMatchers(HttpMethod.PATCH, "/api/employees/**").hasRole("MANAGER")
+
+
+<< JDBC AUTHENTICATION - PLAIN TEXT >>
+Spring Security
+User Accounts Stored in Database
+
+Database Access
+ - So far, our user accounts were hard coded in Java source code
+ - We want to add database access
+
+Recall Our User Roles
+
+.---------.----------.--------------------------.
+| User ID | Password |           Roles          |
+|---------+----------+--------------------------|
+| john    | test123  | EMPLOYEE                 |
+|---------|----------|--------------------------|
+| mary    | test123  | EMPLOYEE, MANAGER        |
+|---------|----------|--------------------------|
+| susan   | test123  | EMPLOYEE, MANAGER, ADMIN |
+'---------'----------'--------------------------'
+
+Database Support in Spring Security
+ - Spring Security can read user account info from database
+ - By default, you have to follow Spring Security's predefined table schemas
+
+.-------------------------.
+| .----------. .--------. |       .----.
+| |  Spring  | |  JDBC  | | <---> |----|
+| | Security | |  Code  | |       |----|
+| '----------' '--------' |       '----'
+'-------------------------'
+
+Customize Database Access with Spring Security
+ - Can also customize the table schemas
+ - Useful if you have custom tables specific to your project / custom
+ - You will be responsible for developing the code to access the data
+   - JDBC, JPA / Hibernate etc ...
+
+Database Support in Spring Security
+ - Follow Spring Security's predefined table schemas
+
+Development Process
+1. Develop SQL Script to set up database tables
+
+-----------------------------
+CREATE TABLE `users`
+  `username` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `enabled` tinyint NOT NULL,
+
+  PRIMARY KEY (`username`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-----------------------------
+
+-----------------------------
+INSERT INTO `users`
+VALUES
+('john','{noop}test123',1),
+('mary','{noop}test123',1),
+('susan','{noop}test123',1);
+-----------------------------
+
+-----------------------------
+CREATE TABLE `autthorities` (
+  `username` varchar(50) NOT NULL,
+  `authority` varchar(50) NOT NULL,
+
+  UNIQUE KEY `authorities_idx_1` (`username`,`authority`),
+
+  CONSTRAINT `authorities_ibfk_1`
+  FOREIGN KEY (`username`)
+  REFERENCES `users` (`username`)
+) ENGINE-InnoDB DEFAULT CHARSET=latin1;
+-----------------------------
+
+-----------------------------
+INSERT INTO `authorities`
+VALUES
+('john','ROLE_EMPLOYEE'),
+('mary','ROLE_EMPLOYEE'),
+('mary','ROLE_MANAGER'),
+('susan','ROLE_EMPLOYEE),
+('susan','ROLE_MANAGER'),
+('susan','ROLE_MANAGER');
+-----------------------------
+Internally Spring Security uses "ROLE_" prefix
+
+2. Add database support to Maven POM file
+JDBC Driver
+-----------------------------
+<!-- MySQL -->
+<dependency>
+  <groupId>com.mysql</groupId>
+  <artifactId>mysql-connector-j</artifactId>
+  <scope>runtime</scope>
+</dependency>
+-----------------------------
+
+3. Create JDBC properties file
+File: application.properties
+-----------------------------
+#
+# JDBC connection properties
+#
+spring.datasource.url=jdbc:mysql://localhost:3306/emloyee_directory
+sprnig.datasource.username=springstudent
+spring.datasource.password=springstudent
+-----------------------------
+
+4. Updae Spring Security Configuration to use JDBC
+
+-----------------------------
+@Configuration
+public class DemoSecurityConfig {
+
+  @Bean
+  public UserDetailsManager userDetailsManager(DataSource dataSource) {
+                                               ^^^^^^^^^^^^^^^^^^^^^
+                        Inject data source -----'
+                        Auto-configured by Spring Boot
+
+    return new JdbcUserDetailsManager(dataSource);  <== No longer hard-conding users
+  }            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                '-- Tell Spring Security to use JDBC authentication with our data source
+
+  ...
+}
+-----------------------------
+
+
+Default Spring Security Database Schema
+
+Spring Security has a default database schema,
+you need to provide two tables,
+one called users and another one called authorities,
+and you have to use these exact table names,
+and also the tables need to have these specific columns,
+
+                                    .-- "authorities" same as "roles"
+                                    V
+.------------------------.        .------------------------.
+| users                V |        | authorities          V |
+|------------------------|        |------------------------|
+| username VARCHAR(50)   |        | username VARCHAR(50)   |
+| password VARCHAR(50)   |++----|<| authority VARCHAR(50)  |
+| enabled TINYINT(1)     |        |                        |
+|------------------------|        |------------------------|   
+| Indexes              > |        | Indexes              > |   
+'------------------------'        '------------------------'  
+
+
+
+
+
+
+
+
+
+
+
+
+
+

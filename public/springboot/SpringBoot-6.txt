@@ -1,0 +1,910 @@
+SECTION 6: SPRING MVC
+
+<< SPRING MVC WITH THYMELEAF >>
+Thymeleaf with Spring Boot
+
+What is Thymeleaf?
+ - Thymeleaf is a Java templating engine
+ - Commonly used to generate the HTML views for web apps
+ - However, it is a general purpose templating engine
+   - Can use Thymeleaf outside of web apps
+
+ - www.thymeleaf.org
+   - Separate project, Unrelate to spring.io
+ - You can create Java apps with Thymeleaf, No need for Spring
+ - But there is a lot of synergy between the two projects
+
+What is a Thymeleaf template?
+ - Can be an HTML page with some Thymeleaf expression
+ - Include dynamic content from Thymeleaf expressions
+
+.--------------------------.
+| .----------------------. | .--------------------.
+| |       HTML code      | | |     Can access     |
+| | Thymeleaf expression | <-| Java code, objects |
+| |                      | | |     Spring beans   |
+| |   ::::::::::::::::   | | '--------------------'
+| '----------------------' |
+'--------------------------'
+
+Where is the Thymeleaf template processed?
+ - In a web app, Thymeleaf is processed on the server
+ - Results include in HTML returned to browser
+
+.-----------.          .------------.
+|           |   1      | Spring MVC |
+|           | -------> | Controller |
+|           |          '------------'
+|           |                 |
+|    Web    |                 | 2 Model
+|  Browser  |                 V
+|           |         Thymeleaf Template
+|           |     .--------------------------.
+|           |     | .----------------------. | 
+|           |  3  | |       HTML code      | |
+|           |<----| | Thymeleaf expression | |
+|           |     | |                      | | 
+|           |     | |   ::::::::::::::::   | | 
+|           |     | '----------------------' |
+'-----------'     '--------------------------'
+
+Development Process
+1. Add Thymeleaf to Maven POM file
+Go to start.spring.io
+Select Dependencies -> Thymeleaf (TEMPLATE ENGINE)
+
+----------------------------
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>sprin-boot-starter-thymeleaf</artifactId>
+</dependency>
+----------------------------
+
+2. Develoop Spring MVC Controller
+
+File: DemoController.java
+----------------------------
+@Controller
+public class DemoController {
+
+  @GetMapping("/")
+  public String sayHello(Model theModel) {
+
+    theModel.addAttribute("theDate", java.time.LocalDateTime.now());
+
+    return "helloworld";
+  }        ^^^^^^^^^^^^
+}           |
+------------V---------------
+We have Thymeleaf dependency in Maven POM
+Spring will auto-configure to use Thymeleaf
+src/main/resources/templates/helloworld.html
+
+3. Create Thymeleaf template
+
+File: src/main/resources/templates/helloworld.html
+----------------------------
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       '-- To use Thymeleaf expressions
+<header> ... </header>
+
+<body>
+  <p th:text="'Time on the server is ' + ${theDate}" />
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |                                  ^^^^^^^^^^
+      '-- Thymeleaf expression            '-- Thymeleaf accesses "theDate" from Spring MVC Model
+</body>
+
+</html>
+----------------------------
+output: Time on the server is 20xx-03-30T11:27:52.297247
+
+Where to place Thymeleaf template?
+ - In Spring Boot, your Thymeleaf template files go in
+   - src/main/resource/templates
+
+ - For web apps, Thymeleaf templates have a .html extension
+
+Additional Features
+ - Looping and conditionals
+ - CSS and JavaScript integration
+ - Template layouts and fragments
+   www.thymeleaf.org
+
+
+<< SPRING MVC WITH THYMELEAF AND CSS >>
+CSS and Thymeleaf
+
+
+<< SPRING MVC BEHIND THE SCENES >>
+Spring MVC Behind the Scenes
+
+Components of a Spring MVC Application
+ - A set of web pages to layout UI components
+ - A collection of Spring beans (controllers, services, etc ...)
+ - Spring configuration (XML, Annotations or Java)
+
+How Spring MVC Works Behind the Scenes
+
+.-----------.          .------------.
+|           |          |    Front   | <== Already implement by Spring Dev Team
+|           | -------> | Controller |
+|           |          '------------'
+|           |                 | Model
+|    Web    |                 V 
+|  Browser  |          .------------.
+|           |          | Controller |
+|           |          '------------'
+|           |                 | Model
+|           |                 V
+|           |          .---------------.
+|           | <------- | View Template |
+|           |          '---------------'
+'-----------'
+
+ - Everything starts off with that first incoming request
+ - Front controller known as DispatcherServlet
+   - Part of the Spring Framework
+   - Already developed by Spring Deb Team
+
+ - You will create 
+   - Model objects
+   - View Template
+   - Controller classes
+
+Controller
+ - Code created by developer
+ - Contains your business logi
+   - Handle the request
+   - Store/retrieve data (db, web service...)
+   - Place data in model
+ - Send to appropriate view template
+
+Model
+ - Model: contains your data
+ - Store/retrieve data via backend systems
+   - database, web service, etc ...
+   - Use a Spring bean if you like
+ - Place your data in the model
+   - Data can be any Java object/collection
+
+View Template
+ - Spring MVC is flexible
+   - Supports many view templates
+ - Recommended: Thymeleaf
+ - Developer creates a page
+   - Display data
+
+View Template (more)
+ - Other view templates supported
+   - Groovy, Velocity, Freemarker, etc...
+ - For details, see:
+   www.luv2code.com/spring-mvc-views
+
+
+<< HELLO WORLD FORM AND MODEL OVERVIEW >>
+Reading Form Data with Spring MVC
+
+High Level View
+
+helloworld-form.html
+.----------------------------------------.       helloworld.html
+|.---------------------..--------------. |      .------------------------.
+|| What's your name?   || Submit Query | | ---> | Hello World of Spring! |
+|'---------------------''--------------' |      | Student name: John Doe |
+'----------------------------------------'      '------------------------'
+
+Application Flow
+
+.---------. Request Mapping   .------------.      .----------------------------------------. 
+|         |    /showForm      | HelloWorld |      |.---------------------..--------------. |
+|   Web   | ----------------> | Controller | ---> || What's your name?   || Submit Query | |
+| Browser |                   |            |      |'---------------------''--------------' |
+|         |                   '------------'      '----------------------------------------'
+'---------'                                        helloworld-form.html
+
+helloworld-form.html
+.----------------------------------------.Request Mapping                   helloworld.html
+|.---------------------..--------------. | /processForm  .------------     .------------------------.
+|| What's your name?   || Submit Query | |-------------->| HelloWorld |--->| Hello World of Spring! |
+|'---------------------''--------------' |               | Controller |    | Student name: John Doe |
+'----------------------------------------'               '------------'    '------------------------'
+
+Controller Class
+
+----------------------------
+@Controller
+public class HelloWorldController {
+
+  // need a controller method to show the initial HTML form
+
+  @RequestMapping("/showForm")
+  public String showForm() {
+    return "helloworld-form";
+  }
+
+  // need a controller method to process the HTML form
+  
+  @RequestMapping("/processForm")
+  public String processForm() {
+    return "helloworld"
+  }
+}
+----------------------------
+
+Development Process
+1. Create Controller class
+2. Show HTML form
+   a. Create controller method to show HTML Form
+   b. Create View Page for HTML form
+3. Process HTML Form
+   a. Create controller method to process HTML Form
+   b. Develop View Page for Confirmation
+
+
+<< ADDING DATA TO SPRING MVC MODEL >>
+Adding Data to Spring Model
+
+Spring Model
+ - The Model is a container for your application data
+ - In your Controller
+   - You can put anything in the model
+   - strings, objects, info from database, etc...
+ - Your View page can access data from the model
+
+Code Example
+ - We want to create a new method to process from data
+ - Read the form data: student's name
+ - Convert the name to upper case
+ - Add the uppercase version to the model
+
+
+----------------------------
+@RequestMapping("/processFormVersinTwo")
+public String letsShoutDude(HttpServletRequest requset, Model model) {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             |                          ^^^^^^^^^^^
+                             '-- Holds HTML form data    '-- Container for your data
+
+  // read the request parameter from the HTML form
+  String theName = request.getParameter("studentName");
+                                         ^^^^^^^^^^^
+                                          '-- Name of HTML form field
+  // convert the data to all caps
+  theName = theName.toUpperCase();
+
+  // create the message
+  String result = "Yo! " + theName;
+
+  // add message to the model
+  model.addAttribute("message", result);
+                      ^^^^^^^   ^^^^^^
+                       '-- Name  '-- Value of attribute
+  return "helloworld";
+}
+----------------------------
+
+View Template - Thymeleaf
+----------------------------
+<html><body>
+
+Hello World of Spring!
+...
+
+The message:<span th:text="${message}" />
+
+</body></html>
+----------------------------
+
+Adding more data to your Model
+----------------------------
+// get the data
+//
+String result = ...
+List<Student> theStudentList = ...
+ShoppingCart theShoppingCart = ...
+
+// add data to the model
+//
+model.attribute("message", result);
+
+model.attribute("students", theStudent);
+
+model.attribute("shoppingCart", theShoppingCart);
+----------------------------
+
+
+<< SPRING MVC BINDING REQUEST PARAM >>
+Reading HTML Form Data with 
+@RequestParam Annotation
+
+Code Example
+ - We want to create a new method to process from data
+ - Read the form data: student's name
+ - Convert the name to upper case
+ - Add the uppercase version to the model
+
+Instead of using HttpServletRequest
+----------------------------
+@RequestMapping("/processFormVersionTwo")
+public String letsShoutDude(HttpServletRequest request, Model model) {
+
+  // read the request parameter from the HTML form
+  String theName = request.getParameter("studentName");
+
+  ...
+}
+----------------------------
+
+Bind variable using @RequestParam Annotation
+----------------------------
+@RequestMapping("processFormVersionTwo")
+public String letsShoutDude(
+	@RequestParam("studentName") String theName, 
+	Model model) {
+
+  // now we can use the variable: theName
+
+}
+----------------------------
+
+Behind the scenes:
+ - Spring will read param from request: studentName
+ - Bind it to the variable: theName
+
+
+<< GETMAPPING AND POSTMAPPING >>
+@GetMapping and @PostMapping
+
+HTTP Request / Response
+
+.-----------.              .------------.
+|           |   request    |            |
+| HTML Form | -----------> | Spring MVC |
+|           | <----------- | Controller |
+|           |   response   |            |
+'-----------'              '------------'
+
+Most Commonly Used HTTP Methods
+.----------.-----------------------------------.
+|  Method  |            Description            |
+|----------+-----------------------------------|
+|   GET    | Requests data from given resource |
+|----------|-----------------------------------|
+|   POST   | Submits data to given resource    |
+|----------|-----------------------------------|
+|  others  |                ...                |
+'----------'-----------------------------------'
+
+Sending Data with GET method
+----------------------------
+<form th:action="@{/processForm}" method="GET" ...>
+  ...
+</form>
+----------------------------
+ - Form data is added to end of URL as name/value pairs
+   - theUrl?field1=value1&field2=value2...
+
+Handling Form Submission
+----------------------------
+@RequestMapping("/processForm")
+public String processForm(...) {
+  ...
+}
+----------------------------
+ - This mapping handles ALL HTTP methods
+   - GET, POST, etc ...
+
+Constrain the Request Mapping - GET
+----------------------------
+@RequestMapping(path="/processForm", method=RequestMethod.GET)
+public String processForm(...) {
+  ...
+}
+----------------------------
+ - This mapping ONLY handles GET method
+ - Any other HTTP REQUEST method will get rejected
+
+Annotation Short-Cut
+----------------------------
+@GetMapping("/processForm")
+public String processForm(...) {
+  ...
+}
+----------------------------
+ - @GetMapping: this mapping ONLY handles GET method
+ - Any other HTTP REQUEST method will get rejected
+
+Sending Data with POST method
+----------------------------
+<form th:action="@{/processForm}" method="POST" ...>
+  ...
+}
+----------------------------
+ - Form data is passed in the body of HTTP request message
+
+Sending Data with POST method
+
+              .---------------,
+              |    request    |
+              |.-------------.|
+.--------.    ||   headers   ||      .------------.
+|  HTML  |----|'-------------'|----> | Spring MVC |
+|  Form  |    |.-------------.|      | Controller |
+'--------'    ||    body     ||      '------------'
+              || (form data) ||
+              |'-------------'|
+              '---------------'
+
+Constrain the Request Mapping - POST
+----------------------------
+@RequestMapping(path="/processForm", method=RequsetMethod.POST)
+public String processForm(...) {
+  ...
+}
+----------------------------
+ - This mapping ONLY handles POST method
+ - Any other HTTP REQUEST method will get rejected
+
+Annotation Short-Cut
+@PostMapping("/processForm")
+public String processForm(...) {
+  ...
+}
+----------------------------
+ - @PostMapping: This mapping oNLY handles POST method
+ - Any other HTTP REQUEST method will get rejected
+
+Well ... which one???
+
+GET
+ - Good for debugging
+ - Bookmark or email URL
+ - Limitation on data length
+
+POST
+ - Can't bookmark or email URL
+ - No limitation on data length
+ - Can also send binary data
+
+
+<< SPRING MVC FORM DATA BINDING - TEXT FIELDS >>
+Spring MVC Form Tag - Text Field
+Review HTML Forms
+ - HTML Forms are used to get input from the user
+.------------------------------.
+| Sign In                      |
+|                              |
+| Email Address:               |
+| .-------------------------.  |
+| |                         |  |
+| '-------------------------'  |
+| Password:                    |
+| .-------------------------.  |
+| |                         |  |
+| '-------------------------'  |
+| # Remeber me                 |
+| .---------.                  |
+| | Sign In |                  |
+| '---------'                  |
+'------------------------------'
+
+Data Binding
+ - Spring MVC forms can make use of data binding
+ - Automaticall setting / retrieving data from a Java object / bean
+
+Big Picture
+
+student-form.html
+.----------------------------<
+|             .------------. <               .------------.
+| First name: |            | <   Student     |   Student  |
+|             '------------' < ------------> | Controller |
+|             .------------. <               '------------'
+| Last name:  |            | <                     |
+|             '------------' <                     |
+| .--------.                 <                     V
+| | Submit |                 <                student-confirmation.html
+| '--------'                 <                .------------------------------------<
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                 | The student is confirmed: John Doe <
+
+Showing Form
+In you Spring Controller
+ - Before you show the form, you must add a model attribute
+ - This is a bean that will hold form data for the data binding
+
+Show Form - Add Model Attribute
+Code snippet from controller
+----------------------------
+@GetMapping("/showStudentForm")
+public String showForm(Model theModel) {
+
+  theModel.addAttribute("student", new Student());
+                         ^^^^^^^
+  return "student-form";  '------------------------.
+}                                                  |
+----------------------------                       |
+                                                   |
+Setting up HTML Form - Data Binding                '----.
+----------------------------                            V
+<form th:action="@{/processStudentForm}" th:object="${student}" method="POST">
+                                                    ^^^^^^^^^^
+                                                     '-- Name of model attribute
+  First name: <input type="text" th:field="*{firstName}" />
+  <br><br>
+  Last name: <input type="text" th:field="*{lastName}" />
+  <br><br>
+  <input type="submit" value="Submit" />
+</form>
+----------------------------
+Note: *{...} is shortcut systex for : ${student.firstName}, ${student.lastName}
+
+When Form is Loaded ... field are populated
+when form is loaded,
+Spring MVC will read student from teh model, then call:
+student.getFirstName()
+      ...
+student.getLastName()
+
+When Form is submitted ... calls setter methods
+When form is submiited
+Spring MVC will create a new Student instance and add to the model,
+then call:
+student.setFirstName(...)
+      ...
+student.setLastName(...)
+
+Handling Form Submission in the Controller
+Code snippet from Controller
+----------------------------
+@PostMapping("/processForm")
+public String processForm(@ModelAttribute("student") Student theStudent) {
+
+  // log the input data
+  System.out.println("theStudent: " + theStudent.getFirstName()
+			+ " " + theStudent.getLastName());
+
+  return "student-confirmation:;
+}
+----------------------------
+
+Confirmation page
+----------------------------
+<html>
+<body>
+  The student is confirmed: <span th:text="${student.firstName} + ' ' + ${student.lastName}" />
+                                           ^^^^^^^^^^^^^^^^^^^^         ^^^^^^^^^^^^^^^^^^^
+                 Calls student.getFirstName() --' Calls student.getLastName() --'
+</body>
+</html>
+----------------------------
+
+Development Process
+1. Create Student class
+2. Create Student controller class
+3. Create HTML form
+4. Create form processing code
+5. Create confirmation page
+
+
+<< SPRING MVC FORM DATA BINDING - DROP DOWN LIST >>
+Spring MVC Form - Drop Down List
+
+Review of HTML <select> Tag
+
+.----------------------------
+|             .------------. 
+| First name: |            | 
+|             '------------' 
+|             .------------. 
+| Last name:  |            | 
+|             '------------'
+|             .------------.
+| Country:    | India     V|
+|             '------------'
+| .--------.                 
+| | Submit |                 
+| '--------'                 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+----------------------------
+<select name="country">
+  <option value="Brazil">Brazil</option>
+  <option value="France">France</option>
+  <option value="Germany">Germany</option>
+  <option value="India">India</India>
+  ...
+</select>
+----------------------------
+
+Thymeleaf and <select> tag
+----------------------------
+<select th:field="*{country}">
+                   ^^^^^^^^^
+                    '-- Name of property on our Student class
+  <option th:value="Brazil">Brazil</option>
+  <option th:value="France">France</option>
+  <option th:value="Germany">Germany</option>
+  <option th:value="India">India</option>
+                   ^^^^^^^
+                    '-- Value sent during form submission
+  ...
+</select>
+----------------------------
+
+Pulling It All Together
+
+student-form.html                                 student-confirmation.html
+.---------.  Student   .------------.  Student   .--------------.
+| student | ---------> |  Student   | ---------> | confirmation |
+|  form   |            | Controller |            |     page     |
+'---------'            '------------'            '--------------'
+
+Development Process
+1. Update HTML form
+2. Update Student class - add getter/setter for new property
+3. Update confirmation page
+
+
+<< SPRING MVC FORM DATA BINDING - DROP DOWN LIST - PART2 >>
+.----------------------------
+|             .------------. 
+| First name: |            | 
+|             '------------' 
+|             .------------. 
+| Last name:  |            | 
+|             '------------'
+|             .------------.
+| Country:    | India     V| <== List of countries are hard-coded
+|             '------------'
+| .--------.                 
+| | Submit |                 
+| '--------'                 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+Wouldn't it be great, if we could read the list of countries
+from the application.properties file??
+
+Development Process
+Step 1: Add list of countries to application.properties file
+File: application.properties
+----------------------------
+countries=Brazil,France,Germany,India,Mexico,United States
+----------------------------
+
+Step 2: Inject the countries in the StudentController using @Value
+Step 3: Add the list of countries to the model
+File: StudentController.java
+----------------------------
+@Controller
+public class StudentController {
+
+  @Value("${countries}")  <==
+  private List<String> countries;  <==
+
+  @GetMapping("/showStudentForm")
+  public String showForm(Model theModel) {
+    ...
+
+    // add the list of countries to the model  <==
+    theModel.addAttribuite("countries", countries);  <==
+
+    ...
+  }
+  ...
+}
+----------------------------
+
+Step 4: In HTML form, generate list of <option> tags for the countries
+File: student-form.html
+----------------------------
+...
+
+<select th:field="*{country}">
+  <option th:each="tempCountry : ${countries}" th:value="${tempCountry}" th:text="${tempCountry}"/>
+</select>
+
+...
+----------------------------
+
+
+<< SPRING MVC FORM DATA BINDING - RADIO BUTTONS >>
+Spring MVC Form - Radio Buttons
+
+Radio Buttons
+.----------------------------
+| Student Registration Form
+|             .------------. 
+| First name: |            | 
+|             '------------' 
+|             .------------. 
+| Last name:  |            | 
+|             '------------'
+|             .------------.
+| Country:    | India     V|
+|             '------------'
+| Favorite Programming Language: o Go  o Java  o Python
+|
+| .--------.                 
+| | Submit |                 
+| '--------'                 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Code Example
+----------------------------
+Favorite Programming Language:
+
+<input type="radio" th:field="*{favoriteLanguage}" th:value="Go">Go</input>
+<input type="radio" th:field="*{favoriteLanguage}" th:value="Java">Java</input>
+<input type="radio" th:field="*{favoriteLanguage}" th:value="Python">Python</input>
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     '-- Binding to property on Student object
+----------------------------
+
+Pulling It All Together
+
+student-form.html                                 student-confirmation.html
+.---------.  Student   .------------.  Student   .--------------.
+| student | ---------> |  Student   | ---------> | confirmation |
+|  form   |            | Controller |            |     page     |
+'---------'            '------------'            '--------------'
+
+Development Process
+1. Update HTML form
+2. Update Student class - add getter/setter for new property
+3. Update confirmation page
+
+
+<< SPRING MVC FORM DATA BINDING - RADIO BUTTONS - PART2>>
+ - List of languages are hard-coded
+ - Read list of languages from props file
+ 
+Development Process
+Step 1: Add list of languages to application
+File: application.propertie
+----------------------------
+...
+languages=Go,Java,Python,Rust,TypeScript
+----------------------------
+
+Step 2: Inject the languages in the StudentController using @Value
+Step 3: Add the list of languages to the model
+File: StudentController
+----------------------------
+...
+@Controller
+public class StudentController {
+
+  @Value("${languages}")          <==
+  private List<String> languages  <==
+
+  ...
+
+  GetMapping("/showStudentForm")
+  public String showForm(Model theModel) {
+    ...
+
+    // add the list of languages to the model       <==
+    theModel.addAttribute("languages", languages);  <==
+
+    ...
+  }
+  ...
+}
+----------------------------
+
+Step 4: In HTML form, generate list of <input> tags for the languages
+File: student-form.html
+----------------------------
+...
+<input type="radio" th:field="*{favoriteLanguage}"
+                    th:each="tempLang : ${languages}"
+                    th:value="${tempLang}"
+                    th:text="${tempLang}" />
+...
+----------------------------
+
+
+<< SPRING MVC FORM DATA BINDING - CHECK BOX >>
+Spring MVC Forms - Check Box
+
+Check Box - Pick Your Favorite Operating System
+
+VVVVVVVVVVVVVVVVVVVV
+|
+| Favorite Operating System: [ ]Linux  [ ]macOS  [ ]Microsoft Windows
+|
+| .--------.                 
+| | Submit |                 
+| '--------'                 
+'----------------------
+
+Code Example
+----------------------------
+<input type="checkbox" th:field="*{favoriteSystem}" th:value="Linux">Linux</input>
+<input type="checkbox" th:field="*{favoriteSystem}" th:value="macOS">macOS</input>
+<input type="checkbox" th:field="*{favoriteSystem}" 
+                       th:value="'Microsoft Windows'">Microsoft Windows</input>
+----------------------------
+
+student-form.html                                 student-confirmation.html
+.---------.  Student   .------------.  Student   .--------------.
+| student | ---------> |  Student   | ---------> | confirmation |
+|  form   |            | Controller |            |     page     |
+'---------'            '------------'            '--------------'
+
+Development Process
+1. Update HTML form
+2. Update Student class - add getter/setter for new property
+3. Update confirmation page
+
+
+<< SPRING MVC FORM DATA BINDING - CHECK BOX - PART2 >>
+ - List of systems are hard-coded
+ - Read list of systems from props file
+
+Development Process
+Step 1:
+Step 2: Inject the systems in the StudentController using @Value
+
+
+<< SPRING MVC VALIDATION >>
+Spring MVC Form Validation
+
+The Need for Validation
+Check the user input form for
+ - required fields
+ - valid numbers in a range
+ - valid format (postal code)
+ - custom business rule
+
+Java's Standard Bean Validation API
+ - Java has a standard Bean Validation API
+ - Defines a metadata model and API for entity validation
+ - Spring Boot and Thymeleaf also support the Bean Validation API
+ - http://www.beanvalidation.org
+
+Bean Validation Features
+.-----------------------------------.
+|         Validation Feature        |
+|-----------------------------------|
+|             required              |
+|-----------------------------------|
+|          validate length          |
+|-----------------------------------|
+|          validate numbers         |
+|-----------------------------------|
+| validate with regular expressions |
+|-----------------------------------|
+|         custom validation         |
+'-----------------------------------'
+
+Validation Annotations
+.------------------.----------------------------------------------.
+|    Annotation    |                  Description                 |
+|------------------|----------------------------------------------|
+|     @NotNull     | Checks that the annotated value is not null  |
+|------------------|----------------------------------------------|
+|       @Min       | Must be a number >= value                    |
+|------------------|----------------------------------------------|
+|       @Max       | Must be a number <= value                    |
+|------------------|----------------------------------------------|
+|       @Size      | Size must match the given size               |
+|------------------|----------------------------------------------|
+|     @Pattern     | Must match a regular expression pattern      |
+|------------------|----------------------------------------------|
+| @Future / @ Past | Date must be in future or past of given date |
+|------------------|----------------------------------------------|
+|    others ...    |                                              |
+'------------------'----------------------------------------------'
+
+
+
+
+
+
+
+
+
