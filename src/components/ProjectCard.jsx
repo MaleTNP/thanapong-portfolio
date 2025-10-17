@@ -1,5 +1,5 @@
 
-export default function ProjectCard({ image, title, description, tech, liveDemoIsActive, gitHubIsActive }) {
+export default function ProjectCard({ image, title, description, tech, liveDemoIsActive, liveDemoLink, gitHubIsActive, gitHubLink }) {
   return <>
     {/* Project Card */}
     <div className="bg-white rounded-2xl overflow-hidden">
@@ -27,12 +27,14 @@ export default function ProjectCard({ image, title, description, tech, liveDemoI
         {/* Project Link */}
         <div className="space-x-2 mt-4">
           <a 
+            href={liveDemoLink}
             className={`px-4 py-1 bg-aqua hover:bg-aqua-dark text-white rounded-lg
             ${liveDemoIsActive ? null : 'hidden'}`}
           >
             Live Demo
           </a>
           <a 
+            href={gitHubLink}
             className={`px-4 py-1 bg-black hover:bg-gray-700 text-white rounded-lg
             ${gitHubIsActive ? null : 'hidden'}`}
           >
