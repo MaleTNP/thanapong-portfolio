@@ -4,6 +4,7 @@ import Journey from '../../components/Journey.jsx';
 import TechStacks from '../../components/TechStacks.jsx';
 import Blog from '../../components/Blog.jsx';
 import Projects from '../../components/Projects.jsx';
+import Upcoming from '../../components/Upcoming.jsx';
 
 function HomePage() {
   return (
@@ -16,7 +17,8 @@ function HomePage() {
         <TechStacks />
         <Blog />
         <Projects />
-        <div>Get in touch</div>
+        <Upcoming />
+        {/* <div>Get in touch</div> */}
       </main>
     </>
   )
