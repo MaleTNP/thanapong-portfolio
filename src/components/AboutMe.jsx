@@ -1,4 +1,4 @@
-import Male from '../assets/profiles/Male.jpg';
+import Male from '../assets/profiles/Male2.jpg';
 import arrowDown from '../assets/icons/arrow-down.svg';
 import SocialIcon from './SocialIcon.jsx';
 import { SOCIALICON } from '../data/social_data.js';
